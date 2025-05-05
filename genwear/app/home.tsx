@@ -8,7 +8,7 @@ import { useUser } from './context/UserContext'
 import Footer from '../components/ui/Footer'
 import { cn } from '../lib/utils'
 import CartIcon from './components/CartIcon'
-import { products } from '@/app/utils/productUtils'
+import { products, getProductWithReviews, calculateAverageRating } from '@/app/utils/productUtils'
 
 // Helper function to get all products
 const getAllProducts = (shoesProducts: any[], clothingProducts: any[], accessoriesProducts: any[]) => {
@@ -377,7 +377,6 @@ export default function Home() {
                       images={product.images}
                       name={product.name}
                       price={product.price}
-                      rating={product.rating}
                     />
                   ))}
                 </div>
@@ -422,7 +421,6 @@ export default function Home() {
                       images={product.images}
                       name={product.name}
                       price={product.price}
-                      rating={product.rating}
                     />
                   ))}
                 </div>
@@ -467,7 +465,6 @@ export default function Home() {
                       images={product.images}
                       name={product.name}
                       price={product.price}
-                      rating={product.rating}
                     />
                   ))}
                 </div>
@@ -600,34 +597,49 @@ interface ProductCardProps {
   images: string[];
   name: string;
   price: number;
-  rating: number;
   className?: string;
 }
 
-const ProductCard = ({ id, images, name, price, rating, className }: ProductCardProps) => {
+const ProductCard = ({ id, images, name, price, className }: ProductCardProps) => {
+  const { isAuthenticated } = useUser();
+  const product = getProductWithReviews(id);
+  const averageRating = product ? calculateAverageRating(id) : 0;
+  const reviewCount = product?.reviews?.length || 0;
+
   return (
-    <Link href={`/product/${id}`} className={cn('group', className)}>
-      <div className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
-        <div className="relative aspect-square">
-          <Image
-            src={images[0]}
-            alt={name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        </div>
-        <div className="p-4">
-          <h3 className="font-semibold text-gray-800 truncate">{name}</h3>
-          <p className="font-bold text-teal-600 mt-1">৳{price.toFixed(2)}</p>
-          <div className="flex items-center mt-2">
+    <Link href={`/product/${id}`} className={cn("group", className)}>
+      <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 mb-4">
+        <Image
+          src={images[0]}
+          alt={name}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-200"
+        />
+      </div>
+      <div className="space-y-2">
+        <h3 className="font-medium text-gray-900 group-hover:text-teal-600 transition-colors">
+          {name}
+        </h3>
+        <div className="flex items-center justify-between">
+          <p className="text-gray-900">৳{price.toFixed(2)}</p>
+          <div className="flex items-center gap-1">
             <div className="flex text-yellow-400">
               {Array(5)
                 .fill(0)
                 .map((_, i) => (
-                  <span key={i}>{i < Math.floor(rating) ? "★" : "☆"}</span>
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < Math.floor(averageRating)
+                        ? 'fill-yellow-400 text-yellow-400'
+                        : 'text-gray-300'
+                    }`}
+                  />
                 ))}
             </div>
-            <span className="ml-1 text-sm text-gray-600">{rating}</span>
+            <span className="text-sm text-gray-600">
+              {averageRating.toFixed(1)} ({reviewCount} reviews)
+            </span>
           </div>
         </div>
       </div>

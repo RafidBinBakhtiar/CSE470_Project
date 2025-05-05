@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Footer from '@/components/ui/Footer';
-import { getProductById, getProductByName, getSimilarProducts } from '@/app/utils/productUtils';
+import { getProductById, getProductByName, getSimilarProducts, getProductWithReviews, ProductWithReviews } from '@/app/utils/productUtils';
 import { useUser } from '@/app/context/UserContext';
 import { useCart } from '@/app/context/CartContext';
 import CartIcon from '../../components/CartIcon';
 import IframeModelViewer from '@/app/components/IframeModelViewer';
+import ReviewForm from '@/app/components/ReviewForm';
+import ReviewList from '@/app/components/ReviewList';
 
 // CSS for hiding scrollbar
 const styles = `
@@ -37,7 +39,7 @@ export default function ProductPage() {
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<ProductWithReviews | null>(null);
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -49,25 +51,30 @@ export default function ProductPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    const productIdOrName = params.id as string;
-    let productData = getProductById(productIdOrName);
-    
-    // If not found by ID, try finding by name
-    if (!productData) {
-      productData = getProductByName(productIdOrName);
-    }
+    const fetchProduct = async () => {
+      try {
+        const productData = getProductWithReviews(params.id as string);
+        if (productData) {
+          setProduct({
+            ...productData,
+            reviews: productData.reviews || []
+          });
+        } else {
+          setProduct(null);
+        }
+        // Get similar products based on the product name
+        const similarProducts = getSimilarProducts(productData?.name || '');
+        setSimilarProducts(similarProducts);
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        // If product not found, redirect to browse page
+        router.push('/browse');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (productData) {
-      setProduct(productData);
-      // Get similar products based on the product name
-      const similarProducts = getSimilarProducts(productData.name);
-      setSimilarProducts(similarProducts);
-    } else {
-      // If product not found, redirect to browse page
-      router.push('/browse');
-    }
-    
-    setLoading(false);
+    fetchProduct();
   }, [params.id, router]);
 
   const handleAddToCart = () => {
@@ -120,6 +127,16 @@ export default function ProductPage() {
       return '/adidas Black Shorts Sports.glb';
     }
     return null;
+  };
+
+  const handleReviewSubmitted = () => {
+    const updatedProduct = getProductWithReviews(params.id as string);
+    if (updatedProduct) {
+      setProduct({
+        ...updatedProduct,
+        reviews: updatedProduct.reviews || []
+      });
+    }
   };
 
   if (loading) {
@@ -333,7 +350,7 @@ export default function ProductPage() {
                       ))}
                   </div>
                   <span className="ml-2 text-sm text-gray-600">
-                    {product.rating} ({product.reviews} reviews)
+                    {product.rating} ({product.reviews.length} reviews)
                   </span>
                 </div>
               </div>
@@ -497,6 +514,27 @@ export default function ProductPage() {
                   <li key={index}>{feature}</li>
                 ))}
               </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
+              <ReviewForm
+                productId={product.id}
+                userId="current-user-id" // Replace with actual user ID from auth
+                onReviewSubmitted={handleReviewSubmitted}
+              />
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">All Reviews</h3>
+              <ReviewList reviews={product.reviews || []} />
             </div>
           </div>
         </div>

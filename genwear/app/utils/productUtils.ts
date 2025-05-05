@@ -1,12 +1,24 @@
+// Interface for Product
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category?: string;
+  description: string;
+  features: string[];
+  sizes: string[];
+  colors: string[];
+  images: string[];
+  modelUrl?: string;
+}
+
 // Mock product data (replace with actual data from API later)
-export const products = [
+export const products: Product[] = [
   // Shoes
   {
     id: 'jordan-6-rings',
     name: 'Nike Air Jordan 6 Rings',
     price: 4249.99,
-    rating: 4.9,
-    reviews: 128,
     category: 'shoes',
     description: 'The Air Jordan 6 Rings combines elements from the 6 championship rings Michael Jordan earned during his illustrious career. This shoe features a premium leather upper with a clean, modern design that pays homage to the legacy of the greatest basketball player of all time.',
     features: [
@@ -29,8 +41,6 @@ export const products = [
     id: 'samba',
     name: 'adidas Samba OG Shoes',
     price: 2549.99,
-    rating: 4.9,
-    reviews: 95,
     category: 'shoes',
     description: 'The adidas Samba OG Shoes are a timeless classic that have been a favorite among soccer players and casual wearers alike for decades. These shoes feature a full grain leather upper, a gum rubber outsole, and the iconic 3-Stripes design.',
     features: [
@@ -53,8 +63,6 @@ export const products = [
     id: 'lamelo-shoes',
     name: 'PUMA x LAMELO BALL Golden Child',
     price: 3124.99,
-    rating: 5.0,
-    reviews: 78,
     category: 'shoes',
     description: 'The PUMA x LAMELO BALL Golden Child is a collaboration between PUMA and NBA star LaMelo Ball. These shoes feature a bold design with golden accents, premium materials, and innovative cushioning technology for optimal performance on and off the court.',
     features: [
@@ -77,8 +85,6 @@ export const products = [
     id: 'luka-3',
     name: 'Nike Air Jordan Luka 3',
     price: 3249.99,
-    rating: 5.0,
-    reviews: 112,
     category: 'shoes',
     description: 'The Nike Air Jordan Luka 3 is designed in collaboration with NBA star Luka Dončić. These shoes feature a lightweight construction, responsive cushioning, and a design inspired by Luka\'s playing style and heritage.',
     features: [
@@ -101,10 +107,8 @@ export const products = [
     id: 'fenty-x-puma',
     name: 'FENTY x PUMA Avanti LS Stitched',
     price: 3644.99,
-    rating: 4.8,
-    reviews: 44,
     category: 'shoes',
-    description: 'This is the Avanti LS like you’ve never seen it before. Appearing in two bold, beautiful colorways, the Avanti LS Stitched features crochet and stitching details and a classic soccer gum sole. Inspired by the legendary PUMA KING soccer cleat, the Avanti LS Stitched is here to play.',
+    description: "This is the Avanti LS like you've never seen it before. Appearing in two bold, beautiful colorways, the Avanti LS Stitched features crochet and stitching details and a classic soccer gum sole. Inspired by the legendary PUMA KING soccer cleat, the Avanti LS Stitched is here to play.",
     features: [
       'Regular fit for everyday comfort',
       'Premium tumbled leather upper for a refined look',
@@ -114,8 +118,7 @@ export const products = [
       'Crochet mesh underlay for breathability and detail',
       'Moulded sockliner for enhanced cushioning',
       'FENTY x PUMA co-branding for a unique collaboration touch',
-    ]
-    ,
+    ],
     sizes: ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12'],
     colors: ['Black/Red', 'White/Black', 'Grey/Blue'],
     images: [
@@ -128,8 +131,6 @@ export const products = [
     id: 'jordan-1-mid',
     name: 'Nike Air Jordan 1 Mid',
     price: 3124.99,
-    rating: 4.6,
-    reviews: 89,
     category: 'shoes',
     description: 'The Nike Air Jordan 1 Mid is a mid-top version of the iconic Air Jordan 1. These shoes feature a classic design with modern materials, offering style and comfort for everyday wear.',
     features: [
@@ -152,8 +153,6 @@ export const products = [
     id: 'adidas-shorts',
     name: 'adidas Black Shorts Sports',
     price: 2549.99,
-    rating: 4.9,
-    reviews: 85,
     category: 'clothing',
     description: 'The adidas Black Shorts Sports are perfect for both training and casual wear. Made with lightweight, breathable fabric, these shorts offer comfort and freedom of movement.',
     features: [
@@ -175,8 +174,6 @@ export const products = [
     id: 'adidas-pants',
     name: 'Tiro 24 Training Pants',
     price: 3124.99,
-    rating: 5.0,
-    reviews: 92,
     category: 'clothing',
     description: 'The Tiro 24 Training Pants are a modern take on the classic track pants. With a tapered fit and premium materials, these pants offer style and comfort for everyday wear.',
     features: [
@@ -198,8 +195,6 @@ export const products = [
     id: 'adidas-hoodie',
     name: 'adidas NY Bulls Red Hoodie',
     price: 1999.99,
-    rating: 4.8,
-    reviews: 76,
     category: 'clothing',
     description: 'The adidas NY Bulls Red Hoodie is a stylish and comfortable hoodie perfect for showing your team spirit. Made with soft, warm fabric, this hoodie is ideal for casual wear.',
     features: [
@@ -221,8 +216,6 @@ export const products = [
     id: 'puma-tee',
     name: 'PUMA Blue Tee',
     price: 4249.99,
-    rating: 4.9,
-    reviews: 88,
     category: 'clothing',
     description: 'The PUMA Blue Tee is a comfortable and stylish t-shirt perfect for everyday wear. Made with soft, breathable fabric, this tee offers comfort and style.',
     features: [
@@ -244,8 +237,6 @@ export const products = [
     id: 'fenty-tee',
     name: 'F1 Men\'s Japan',
     price: 3124.99,
-    rating: 4.6,
-    reviews: 67,
     category: 'clothing',
     description: 'The F1 Men\'s Japan tee is a stylish t-shirt featuring F1 racing design. Made with comfortable fabric, this tee is perfect for showing your love for Formula 1 racing.',
     features: [
@@ -268,8 +259,6 @@ export const products = [
     id: 'legacy-cap',
     name: 'Nike Dri-FIT Legacy91 Cap',
     price: 624.99,
-    rating: 4.8,
-    reviews: 156,
     category: 'accessories',
     description: 'The Nike Dri-FIT Legacy91 Cap is a classic baseball cap with modern performance features. Made with Dri-FIT technology, this cap keeps you cool and dry during activities.',
     features: [
@@ -291,8 +280,6 @@ export const products = [
     id: 'classic-backpack',
     name: 'adidas Classic Backpack',
     price: 1149.99,
-    rating: 4.7,
-    reviews: 124,
     category: 'accessories',
     description: 'The adidas Classic Backpack is a versatile and durable backpack perfect for everyday use. With multiple compartments and comfortable straps, this backpack offers style and functionality.',
     features: [
@@ -314,8 +301,6 @@ export const products = [
     id: 'evercat-duffel',
     name: 'PUMA Evercat Transformation Duffel',
     price: 999.99,
-    rating: 4.5,
-    reviews: 98,
     category: 'accessories',
     description: 'The PUMA Evercat Transformation Duffel is a versatile bag that can be used as a duffel or backpack. With multiple compartments and comfortable straps, this bag offers style and functionality.',
     features: [
@@ -337,8 +322,6 @@ export const products = [
     id: 'brasilia-gymsack',
     name: 'Nike Brasilia Training Gymsack',
     price: 499.99,
-    rating: 4.9,
-    reviews: 112,
     description: 'The Nike Brasilia Training Gymsack is a durable and spacious gym bag perfect for carrying your workout essentials. With multiple compartments and comfortable straps, this bag offers style and functionality.',
     features: [
       'Multiple compartments',
@@ -359,8 +342,6 @@ export const products = [
     id: 'originals-socks',
     name: 'adidas Originals Socks 3-Pack',
     price: 424.99,
-    rating: 4.6,
-    reviews: 89,
     description: 'The adidas Originals Socks 3-Pack includes three pairs of comfortable and stylish socks. Made with soft, breathable fabric, these socks offer comfort and style.',
     features: [
       'Soft, breathable fabric',
@@ -381,8 +362,6 @@ export const products = [
     id: 'elite-socks',
     name: 'Nike Elite Basketball Socks',
     price: 474.99,
-    rating: 4.7,
-    reviews: 134,
     category: 'accessories',
     description: 'The Nike Elite Basketball Socks are designed for optimal performance on the court. With cushioned support and moisture-wicking technology, these socks keep your feet comfortable during intense games.',
     features: [
@@ -404,8 +383,6 @@ export const products = [
     id: 'pioneer-wallet',
     name: 'PUMA Pioneer Wallet',
     price: 649.99,
-    rating: 4.5,
-    reviews: 92,
     category: 'accessories',
     description: 'The PUMA Pioneer Wallet is a sleek and functional accessory for everyday use. With multiple card slots and a billfold compartment, this wallet combines style with practicality.',
     features: [
@@ -427,8 +404,6 @@ export const products = [
     id: 'training-gloves',
     name: 'adidas Training Gloves',
     price: 749.99,
-    rating: 4.6,
-    reviews: 78,
     category: 'accessories',
     description: 'The adidas Training Gloves provide essential protection and grip for your workout sessions. With breathable material and reinforced padding, these gloves enhance your training experience.',
     features: [
@@ -450,8 +425,6 @@ export const products = [
     id: 'resistance-band',
     name: 'Nike Resistance Band Set',
     price: 874.99,
-    rating: 4.8,
-    reviews: 156,
     category: 'accessories',
     description: 'The Nike Resistance Band Set includes multiple resistance levels for versatile workout options. Perfect for strength training, rehabilitation, or adding intensity to your exercises.',
     features: [
@@ -473,8 +446,6 @@ export const products = [
     id: 'performance-headband',
     name: 'PUMA Performance Headband',
     price: 324.99,
-    rating: 4.4,
-    reviews: 112,
     category: 'accessories',
     description: 'The PUMA Performance Headband keeps sweat away from your eyes during intense workouts. Made with moisture-wicking material and featuring a comfortable fit, this headband is essential for any active lifestyle.',
     features: [
@@ -493,6 +464,69 @@ export const products = [
     ],
   },
 ];
+
+// Interface for individual reviews
+export interface Review {
+  id: string;
+  userId: string;
+  productId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+// Interface for product with reviews
+export interface ProductWithReviews extends Omit<Product, 'reviews'> {
+  reviews: Review[];
+  rating: number;
+}
+
+// Mock reviews data (replace with actual database later)
+let reviews: Review[] = [];
+
+// Function to add a new review
+export function addReview(productId: string, userId: string, rating: number, comment: string): Review {
+  const newReview: Review = {
+    id: Math.random().toString(36).substr(2, 9),
+    userId,
+    productId,
+    rating,
+    comment,
+    createdAt: new Date().toISOString(),
+  };
+  
+  reviews = [...reviews, newReview];
+  return newReview;
+}
+
+// Function to get reviews for a product
+export function getProductReviews(productId: string): Review[] {
+  return reviews.filter(review => review.productId === productId) || [];
+}
+
+// Function to calculate average rating for a product
+export function calculateAverageRating(productId: string): number {
+  const productReviews = getProductReviews(productId);
+  if (!productReviews || productReviews.length === 0) return 0;
+  
+  const totalRating = productReviews.reduce((sum, review) => sum + review.rating, 0);
+  return Number((totalRating / productReviews.length).toFixed(1));
+}
+
+// Function to get product with reviews
+export function getProductWithReviews(productId: string): ProductWithReviews | undefined {
+  const product = getProductById(productId);
+  if (!product) return undefined;
+  
+  const productReviews = getProductReviews(productId);
+  const averageRating = calculateAverageRating(productId);
+  
+  return {
+    ...product,
+    reviews: productReviews,
+    rating: averageRating,
+  };
+}
 
 // Function to get product by ID
 export function getProductById(id: string) {
