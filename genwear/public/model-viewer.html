@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Model Viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/geometries/DecalGeometry.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/geometries/DecalHelper.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #f5f5f5;
+      font-family: 'Inter', sans-serif;
+    }
+    #container {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+    }
+    .loading-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.8);
+      z-index: 10;
+    }
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .progress-bar {
+      width: 200px;
+      height: 10px;
+      background-color: #f3f3f3;
+      border-radius: 5px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background-color: #3498db;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .error-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      z-index: 20;
+    }
+    .retry-button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .retry-button:hover {
+      background-color: #2980b9;
+    }
+    .controls-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 300px;
+    }
+    .tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .tab:hover {
+      background-color: #e0e0e0;
+    }
+    .tab.active {
+      background-color: #3498db;
+      color: white;
+    }
+    .tab-content {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .placement-instructions {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      z-index: 5;
+      display: none;
+    }
+    .size-controls {
+      display: block;
+      margin-top: 10px;
+    }
+    .size-controls label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .size-controls input {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .image-controls {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .image-controls button {
+      padding: 5px 10px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .image-controls button:hover {
+      background-color: #2980b9;
+    }
+    .preview-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      pointer-events: none;
+      opacity: 0.7;
+      z-index: 5;
+      display: none;
+    }
+    .reset-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      z-index: 5;
+    }
+    .reset-button:hover {
+      background-color: #c0392b;
+    }
+    .filter-tabs {
+      display: none;
+    }
+    .color-picker {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .color-options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
+    .color-option {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .color-option:hover {
+      border-color: #333;
+    }
+    .color-option.active {
+      border-color: #3498db;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <div class="progress-bar">
+        <div class="progress-bar-fill"></div>
+      </div>
+      <p>Loading 3D model...</p>
+    </div>
+    
+    <div class="controls-container">
+      <div class="tabs">
+        <div class="tab active" data-tab="color">
+          <span>Color</span>
+        </div>
+        <div class="tab" data-tab="full">
+          <span>Full Texture</span>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="color-content">
+        <div class="color-picker">
+          <h3>Choose a color</h3>
+          <div class="color-options">
+            <div class="color-option active" style="background-color: #EFBD48;" data-color="#EFBD48"></div>
+            <div class="color-option" style="background-color: #80C670;" data-color="#80C670"></div>
+            <div class="color-option" style="background-color: #F7268A;" data-color="#F7268A"></div>
+            <div class="color-option" style="background-color: #F16063;" data-color="#F16063"></div>
+            <div class="color-option" style="background-color: #35CD96;" data-color="#35CD96"></div>
+            <div class="color-option" style="background-color: #03BCE4;" data-color="#03BCE4"></div>
+            <div class="color-option" style="background-color: #9747FF;" data-color="#9747FF"></div>
+            <div class="color-option" style="background-color: #3591A3;" data-color="#3591A3"></div>
+            <div class="color-option" style="background-color: #FF6A00;" data-color="#FF6A00"></div>
+            <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
+            <div class="color-option" style="background-color: #CDCDCD;" data-color="#CDCDCD"></div>
+            <div class="color-option" style="background-color: #ECECEC;" data-color="#ECECEC"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="full-content" style="display: none;">
+        <div class="size-controls">
+          <button id="uploadFull">Upload Full Texture</button>
+          <input type="file" id="fullFile" accept="image/*" style="display: none;">
+        </div>
+      </div>
+    </div>
+    
+    <button id="resetModel" class="reset-button">Reset Model</button>
+  </div>
+
+  <script>
+    let scene, camera, renderer, controls, model;
+    let currentModelUrl = null;
+    let currentColor = null;
+    let currentLogoUrl = null;
+    let currentFullUrl = null;
+    let isPlacementMode = false;
+    let raycaster = new THREE.Raycaster();
+    let mouse = new THREE.Vector2();
+    let placedImages = [];
+    let loadingManager = new THREE.LoadingManager();
+    let textureLoader = new THREE.TextureLoader(loadingManager);
+    let logoSize = 0.5;
+    let logoCurve = 0.2;
+    let isLogoTexture = true;
+    let isFullTexture = false;
+    let previewElement = null;
+    let originalModelColor = null;
+
+    // Initialize the scene
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xf5f5f5);
+
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 5;
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      document.getElementById('container').appendChild(renderer.domElement);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+
+      // Add lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(1, 1, 1);
+      scene.add(directionalLight);
+
+      // Handle window resize
+      window.addEventListener('resize', onWindowResize, false);
+
+      // Handle mouse events for image placement
+      window.addEventListener('click', onMouseClick, false);
+      window.addEventListener('mousemove', onMouseMove, false);
+
+      // Setup loading manager
+      setupLoadingManager();
+
+      // Setup UI event listeners
+      setupUIEventListeners();
+
+      // Notify parent that iframe is ready
+      window.parent.postMessage({ type: 'iframeReady' }, '*');
+
+      animate();
+    }
+
+    function setupLoadingManager() {
+      loadingManager.onProgress = function(url, itemsLoaded, itemsTotal) {
+        const progress = (itemsLoaded / itemsTotal) * 100;
+        document.querySelector('.progress-bar-fill').style.width = progress + '%';
+      };
+
+      loadingManager.onLoad = function() {
+        document.querySelector('.loading-container').style.display = 'none';
+      };
+
+      loadingManager.onError = function(url) {
+        console.error('Error loading:', url);
+        showError('Error loading resource: ' + url);
+      };
+    }
+
+    function setupUIEventListeners() {
+      // Tab switching
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabName = tab.getAttribute('data-tab');
+          
+          // Hide all tab contents
+          document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+          });
+          
+          // Show the selected tab content
+          document.getElementById(`${tabName}-content`).style.display = 'block';
+          
+          // Update active tab
+          document.querySelectorAll('.tab').forEach(t => {
+            t.classList.remove('active');
+          });
+          tab.classList.add('active');
+        });
+      });
+      
+      // Color options
+      document.querySelectorAll('.color-option').forEach(option => {
+        option.addEventListener('click', () => {
+          const color = option.getAttribute('data-color');
+          
+          // Update active color option
+          document.querySelectorAll('.color-option').forEach(opt => {
+            opt.classList.remove('active');
+          });
+          option.classList.add('active');
+          
+          // Apply color to model
+          applyColor(color);
+        });
+      });
+      
+      // Upload button for full texture
+      document.getElementById('uploadFull').addEventListener('click', function() {
+        document.getElementById('fullFile').click();
+      });
+      
+      // File input for full texture
+      document.getElementById('fullFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            currentFullUrl = event.target.result;
+            
+            // Switch to full texture mode
+            isLogoTexture = false;
+            isFullTexture = true;
+            
+            // Update model
+            updateModelTextures();
+            
+            // Notify parent
+            window.parent.postMessage({ type: 'textureReady' }, '*');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      // Reset model button
+      document.getElementById('resetModel').addEventListener('click', resetModel);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function loadModel(url) {
+      // Show loading indicator
+      document.querySelector('.loading-container').style.display = 'flex';
+      document.querySelector('.progress-bar-fill').style.width = '0%';
+
+      // Clear existing model and placed images
+      if (model) {
+        scene.remove(model);
+      }
+      placedImages.forEach(image => {
+        scene.remove(image);
+      });
+      placedImages = [];
+
+      const loader = new THREE.GLTFLoader(loadingManager);
+      loader.load(
+        url,
+        function(gltf) {
+          model = gltf.scene;
+          scene.add(model);
+
+          // Store original materials
+          model.traverse(function(child) {
+            if (child.isMesh) {
+              // Clone the original material to preserve it
+              child.userData.originalMaterial = child.material.clone();
+            }
+          });
+
+          // Center the model
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          model.position.sub(center);
+
+          // Scale the model to fit the view
+          const size = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = 3 / maxDim;
+          model.scale.multiplyScalar(scale);
+
+          // Notify parent that model is loaded
+          window.parent.postMessage({ type: 'modelLoaded' }, '*');
+
+          // Apply current color if exists
+          if (currentColor) {
+            applyColor(currentColor);
+          } else {
+            // If no color is selected, use original materials
+            model.traverse(function(child) {
+              if (child.isMesh && child.userData.originalMaterial) {
+                child.material = child.userData.originalMaterial.clone();
+              }
+            });
+          }
+
+          // Apply current textures if exist
+          updateModelTextures();
+        },
+        function(xhr) {
+          const progress = (xhr.loaded / xhr.total) * 100;
+          document.querySelector('.progress-bar-fill').style.width = progress + '%';
+        },
+        function(error) {
+          console.error('Error loading model:', error);
+          showError('Error loading the 3D model. Please try again.');
+        }
+      );
+    }
+
+    function applyColor(color) {
+      if (!model) return;
+
+      currentColor = color;
+      model.traverse(function(child) {
+        if (child.isMesh) {
+          child.material.color.setStyle(color);
+        }
+      });
+
+      window.parent.postMessage({ type: 'colorApplied', color: color }, '*');
+    }
+
+    function updateModelTextures() {
+      if (!model) return;
+      
+      // Remove all existing decals
+      model.traverse(function(child) {
+        if (child.isDecal) {
+          model.remove(child);
+        }
+        if (child.isMesh) {
+          // Reset to original material if no custom color is set
+          if (!currentColor && child.userData.originalMaterial) {
+            child.material = child.userData.originalMaterial.clone();
+          } else {
+            // Create new material with custom color
+            child.material = new THREE.MeshPhongMaterial({
+              color: currentColor || 0xffffff,
+              map: null,
+              transparent: true
+            });
+          }
+        }
+      });
+      
+      // Apply full texture if enabled
+      if (isFullTexture && currentFullUrl) {
+        // Create a new texture loader
+        const textureLoader = new THREE.TextureLoader();
+        
+        // Load the texture with error handling
+        textureLoader.load(
+          currentFullUrl,
+          function(texture) {
+            // Apply texture to all meshes in the model
+            model.traverse(function(child) {
+              if (child.isMesh) {
+                // Create new material with the texture
+                child.material = new THREE.MeshPhongMaterial({
+                  map: texture,
+                  color: currentColor || 0xffffff,
+                  transparent: true
+                });
+                
+                // Ensure proper UV mapping
+                if (child.geometry.attributes.uv) {
+                  child.geometry.attributes.uv.needsUpdate = true;
+                }
+              }
+            });
+            
+            window.parent.postMessage({ type: 'textureApplied', isFull: true }, '*');
+          },
+          undefined,
+          function(error) {
+            console.error('Error loading texture:', error);
+            showError('Error loading the texture. Please try again.');
+          }
+        );
+      }
+      
+      // Apply logo textures if enabled
+      if (isLogoTexture && placedImages.length > 0) {
+        window.parent.postMessage({ type: 'textureApplied', isFull: false }, '*');
+      }
+    }
+
+    function onMouseClick(event) {
+      if (!isPlacementMode || !currentLogoUrl || !model) return;
+
+      // Calculate mouse position in normalized device coordinates
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      // Update the picking ray with the camera and mouse position
+      raycaster.setFromCamera(mouse, camera);
+
+      // Calculate objects intersecting the picking ray
+      const intersects = raycaster.intersectObject(model, true);
+
+      if (intersects.length > 0) {
+        const intersect = intersects[0];
+        placeImage(currentLogoUrl, intersect.point, intersect.face.normal);
+        
+        // Keep placement mode active after placing an image
+        // This allows users to place multiple images
+        isPlacementMode = true;
+        document.querySelector('.placement-instructions').style.display = 'block';
+        document.getElementById('previewImage').style.display = 'block';
+        
+        // Log for debugging
+        console.log('Image placed at:', intersect.point);
+      } else {
+        console.log('No intersection with model');
+      }
+    }
+
+    function onMouseMove(event) {
+      if (!isPlacementMode || !currentLogoUrl || !model) return;
+
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObject(model, true);
+
+      if (intersects.length > 0) {
+        document.body.style.cursor = 'pointer';
+        
+        // Update preview position
+        const previewImage = document.getElementById('previewImage');
+        const size = logoSize * 100; // Scale the preview size based on the image size setting
+        previewImage.style.width = `${size}px`;
+        previewImage.style.height = `${size}px`;
+      } else {
+        document.body.style.cursor = 'default';
+      }
+    }
+
+    function placeImage(imageUrl, position, normal) {
+      console.log('Placing image:', imageUrl, 'at position:', position);
+      
+      // Load the image texture
+      textureLoader.load(
+        imageUrl,
+        function(texture) {
+          console.log('Texture loaded successfully');
+          
+          // Create a decal geometry
+          const decalGeometry = new THREE.DecalGeometry(
+            model,
+            position,
+            new THREE.Euler(0, 0, 0),
+            new THREE.Vector3(logoSize, logoSize, logoSize)
+          );
+          
+          // Create a material with the texture
+          const decalMaterial = new THREE.MeshPhongMaterial({
+            map: texture,
+            transparent: true,
+            depthTest: true,
+            depthWrite: false,
+            polygonOffset: true,
+            polygonOffsetFactor: -4,
+            side: THREE.DoubleSide
+          });
+          
+          // Create the decal mesh
+          const decalMesh = new THREE.Mesh(decalGeometry, decalMaterial);
+          decalMesh.isDecal = true;
+          
+          // Add to scene
+          model.add(decalMesh);
+          placedImages.push(decalMesh);
+
+          // Notify parent about the placed image
+          window.parent.postMessage({
+            type: 'imagePlaced',
+            imageUrl: imageUrl,
+            position: {
+              x: position.x,
+              y: position.y,
+              z: position.z
+            }
+          }, '*');
+
+          // Keep placement mode active after placing an image
+          // This allows users to place multiple images
+          isPlacementMode = true;
+          document.querySelector('.placement-instructions').style.display = 'block';
+          document.getElementById('previewImage').style.display = 'block';
+          
+          console.log('Image placed successfully');
+        },
+        undefined,
+        function(error) {
+          console.error('Error loading image:', error);
+          showError('Error loading the image. Please try again.');
+        }
+      );
+    }
+
+    function showError(message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.innerHTML = `
+        <p>${message}</p>
+        <button class="retry-button" onclick="retryLoading()">Retry</button>
+      `;
+      document.getElementById('container').appendChild(errorDiv);
+    }
+
+    function retryLoading() {
+      const errorDiv = document.querySelector('.error-message');
+      if (errorDiv) {
+        errorDiv.remove();
+      }
+      if (currentModelUrl) {
+        loadModel(currentModelUrl);
+      }
+    }
+
+    function resetModel() {
+      // Reset all state variables
+      currentColor = null;
+      currentLogoUrl = null;
+      currentFullUrl = null;
+      isPlacementMode = false;
+      isLogoTexture = true;
+      isFullTexture = false;
+      placedImages = [];
+      
+      // Clear the file inputs
+      document.getElementById('fullFile').value = '';
+      
+      // Hide placement instructions and preview
+      document.querySelector('.placement-instructions').style.display = 'none';
+      document.getElementById('previewImage').style.display = 'none';
+      
+      // Reset to color tab
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.remove('active');
+      });
+      document.querySelector('.tab[data-tab="color"]').classList.add('active');
+      
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      document.getElementById('color-content').style.display = 'block';
+      
+      // Reset color options
+      document.querySelectorAll('.color-option').forEach(opt => {
+        opt.classList.remove('active');
+      });
+      document.querySelector('.color-option[data-color="#EFBD48"]').classList.add('active');
+      
+      // Reload the model to restore original materials
+      if (currentModelUrl) {
+        loadModel(currentModelUrl);
+      }
+      
+      // Notify parent
+      window.parent.postMessage({ type: 'modelReset' }, '*');
+    }
+
+    function removeLastImage() {
+      if (placedImages.length > 0) {
+        const lastImage = placedImages.pop();
+        model.remove(lastImage);
+        
+        // Notify parent about the removed image
+        window.parent.postMessage({
+          type: 'imageRemoved',
+          count: placedImages.length
+        }, '*');
+      }
+    }
+    
+    function removeAllImages() {
+      placedImages.forEach(image => {
+        model.remove(image);
+      });
+      
+      const count = placedImages.length;
+      placedImages = [];
+      
+      // Notify parent about the removed images
+      window.parent.postMessage({
+        type: 'imagesRemoved',
+        count: count
+      }, '*');
+    }
+
+    // Listen for messages from the parent window
+    window.addEventListener('message', function(event) {
+      if (event.origin !== window.location.origin) return;
+
+      const data = event.data;
+      
+      if (data.type === 'setModelUrl') {
+        currentModelUrl = data.url;
+        loadModel(data.url);
+      } else if (data.type === 'updateColor') {
+        applyColor(data.color);
+      } else if (data.type === 'updateTexture') {
+        if (data.isFull) {
+          currentFullUrl = data.imageUrl;
+          isFullTexture = true;
+          isLogoTexture = false;
+          updateModelTextures();
+        } else {
+          currentLogoUrl = data.imageUrl;
+          isPlacementMode = true;
+          document.querySelector('.placement-instructions').style.display = 'block';
+          
+          // Set up preview image
+          const previewImage = document.getElementById('previewImage');
+          previewImage.style.backgroundImage = `url(${data.imageUrl})`;
+          previewImage.style.display = 'block';
+        }
+      } else if (data.type === 'resetModel') {
+        resetModel();
+      }
+    });
+
+    // Initialize the scene
+    init();
+  </script>
+</body>
+</html>
