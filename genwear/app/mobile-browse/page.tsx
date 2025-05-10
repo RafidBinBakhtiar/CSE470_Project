@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Search, Filter, X, ChevronDown, User, ShoppingCart, Star, Menu, Package, LogOut, SlidersHorizontal } from "lucide-react";
 import { products } from '@/app/utils/productUtils';
 import { useUser } from '../context/UserContext';
 import { motion, AnimatePresence } from "framer-motion";
+import useBatchRatings from '../hooks/useBatchRatings';
 
 // Types
 interface Product {
@@ -14,6 +15,7 @@ interface Product {
   name: string;
   price: number;
   rating: number;
+  reviews: number;
   category?: string;
   images: string[];
 }
@@ -126,22 +128,16 @@ function FilterSheet({ isOpen, onClose, filters, setFilters }: {
   setFilters: (filters: FilterState) => void;
 }) {
   return (
-    <AnimatePresence>
+    <>
       {isOpen && (
         <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black z-40"
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
             onClick={onClose}
           />
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 20 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50 p-4 max-h-[90vh] overflow-y-auto"
+          <div
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50 p-4 max-h-[90vh] overflow-y-auto transition-transform duration-300 ease-out"
+            style={{ transform: isOpen ? 'translateY(0)' : 'translateY(100%)' }}
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold">Filters</h2>
@@ -246,44 +242,10 @@ function FilterSheet({ isOpen, onClose, filters, setFilters }: {
             >
               Apply Filters
             </button>
-          </motion.div>
+          </div>
         </>
       )}
-    </AnimatePresence>
-  );
-}
-
-// Product Card Component
-function ProductCard({ product }: { product: Product }) {
-  return (
-    <Link href={`/product/${product.id}`} className="block">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300"
-      >
-        <div className="relative aspect-square">
-          <Image
-            src={product.images[0] || "/placeholder.svg"}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        </div>
-        <div className="p-3">
-          <h3 className="font-semibold text-gray-800 text-sm truncate">{product.name}</h3>
-          <p className="font-bold text-teal-600 text-sm mt-1">৳{product.price.toFixed(2)}</p>
-          <div className="flex items-center mt-1">
-            <div className="flex text-yellow-400 text-xs">
-              {Array(5).fill(0).map((_, i) => (
-                <span key={i}>{i < Math.floor(product.rating) ? "★" : "☆"}</span>
-              ))}
-            </div>
-            <span className="ml-1 text-xs text-gray-600">{product.rating}</span>
-          </div>
-        </div>
-      </motion.div>
-    </Link>
+    </>
   );
 }
 
@@ -340,6 +302,51 @@ export default function MobileBrowse() {
 
     return matchesSearch && matchesCategory && matchesFilters;
   });
+
+  // Get all product IDs for batch rating
+  const productIds = useMemo<string[]>(() => {
+    return filteredProducts.map(product => product.id);
+  }, [filteredProducts]);
+
+  // Use batch ratings
+  const { getRating } = useBatchRatings(productIds);
+
+  // Product Card Component - Updated to use batch ratings
+  function ProductCard({ product }: { product: Product }) {
+    const ratingData = getRating(product.id);
+    const displayRating = ratingData ? ratingData.rating : product.rating;
+    const displayReviewCount = ratingData ? ratingData.reviewCount : product.reviews;
+    
+    return (
+      <Link href={`/product/${product.id}`} className="block">
+        <div className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+          <div className="relative aspect-square">
+            <Image
+              src={product.images[0] || "/placeholder.svg"}
+              alt={product.name}
+              fill
+              loading="lazy"
+              sizes="(max-width: 768px) 50vw, 33vw"
+              className="object-cover"
+            />
+          </div>
+          <div className="p-3">
+            <h3 className="font-semibold text-gray-800 text-sm truncate">{product.name}</h3>
+            <p className="font-bold text-teal-600 text-sm mt-1">৳{product.price.toFixed(2)}</p>
+            <div className="flex items-center mt-1">
+              <div className="flex text-yellow-400 text-xs">
+                {Array(5).fill(0).map((_, i) => (
+                  <span key={i}>{i < Math.floor(displayRating) ? "★" : "☆"}</span>
+                ))}
+              </div>
+              <span className="ml-1 text-xs text-gray-600">{displayRating.toFixed(1)}</span>
+              <span className="ml-1 text-xs text-gray-500">({displayReviewCount})</span>
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

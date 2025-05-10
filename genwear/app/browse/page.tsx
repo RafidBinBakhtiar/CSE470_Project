@@ -4,7 +4,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight, Search, Menu, Mail, Bell, User, Settings, LogOut, Heart, Package } from "lucide-react"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,7 @@ import { useUser } from '../context/UserContext';
 import Footer from '@/components/ui/Footer';
 import CartIcon from '../components/CartIcon';
 import { products } from '@/app/utils/productUtils';
+import useBatchRatings from '../hooks/useBatchRatings';
 
 // Add type definitions for filter state
 type FilterState = {
@@ -53,6 +54,55 @@ interface Product {
   images: string[];
   modelUrl?: string;
   createdAt?: string;
+}
+
+// Product Card Component
+interface ProductCardProps {
+  id: string;
+  images: string[];
+  name: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  getRatingFn?: (id: string) => { rating: number; reviewCount: number } | null;
+}
+
+function ProductCard({ id, images, name, price, rating, reviews, getRatingFn }: ProductCardProps) {
+  const ratingData = getRatingFn ? getRatingFn(id) : null;
+  const displayRating = ratingData ? ratingData.rating : rating;
+  const displayReviewCount = ratingData ? ratingData.reviewCount : reviews;
+  
+  return (
+    <Link href={`/product/${id}`} className="block">
+      <div className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+        <div className="relative aspect-square">
+          <Image
+            src={images[0] || "/placeholder.svg"}
+            alt={name}
+            fill
+            loading="lazy"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover"
+          />
+        </div>
+        <div className="p-4">
+          <h3 className="font-semibold text-gray-800 truncate">{name}</h3>
+          <p className="font-bold text-teal-600 mt-1">৳{price.toFixed(2)}</p>
+          <div className="flex items-center mt-2">
+            <div className="flex text-yellow-400">
+              {Array(5)
+                .fill(0)
+                .map((_, i) => (
+                  <span key={i}>{i < Math.floor(displayRating) ? "★" : "☆"}</span>
+                ))}
+            </div>
+            <span className="ml-1 text-sm text-gray-600">{displayRating.toFixed(1)}</span>
+            <span className="ml-1 text-xs text-gray-500">({displayReviewCount})</span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
 }
 
 export default function Page() {
@@ -132,17 +182,6 @@ export default function Page() {
     }
   }, [router]);
 
-  if (isPageLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading products...</p>
-        </div>
-      </div>
-    );
-  }
-
   // Update the filtering logic to use the new filter state
   const filteredProducts = products.filter((product) => {
     const productPrice = parseFloat(product.price.toString());
@@ -203,6 +242,14 @@ export default function Page() {
   const sortedProducts = getSortedProducts(filteredProducts);
   const displayedProducts = sortedProducts.slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage);
 
+  // Get product IDs for batch ratings
+  const productIds = useMemo<string[]>(() => {
+    return displayedProducts.map(product => product.id);
+  }, [displayedProducts]);
+
+  // Use batch ratings hook
+  const { getRating } = useBatchRatings(productIds);
+
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
@@ -250,6 +297,18 @@ export default function Page() {
     setIsProfileOpen(false);
     router.push('/login');
   };
+
+  // Show loading screen after all hooks have been called
+  if (isPageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-white">
@@ -820,6 +879,8 @@ export default function Page() {
                       name={product.name}
                       price={product.price}
                       rating={product.rating}
+                      reviews={product.reviews}
+                      getRatingFn={getRating}
                     />
                   ))}
                 </div>
@@ -836,6 +897,8 @@ export default function Page() {
                       name={product.name}
                       price={product.price}
                       rating={product.rating}
+                      reviews={product.reviews}
+                      getRatingFn={getRating}
                     />
                   ))}
                 </div>
@@ -852,6 +915,8 @@ export default function Page() {
                       name={product.name}
                       price={product.price}
                       rating={product.rating}
+                      reviews={product.reviews}
+                      getRatingFn={getRating}
                     />
                   ))}
                 </div>
@@ -868,6 +933,8 @@ export default function Page() {
                       name={product.name}
                       price={product.price}
                       rating={product.rating}
+                      reviews={product.reviews}
+                      getRatingFn={getRating}
                     />
                   ))}
                 </div>
@@ -1032,44 +1099,4 @@ export default function Page() {
       <Footer />
     </main>
   )
-}
-
-// Product Card Component
-interface ProductCardProps {
-  id: string;
-  images: string[];
-  name: string;
-  price: number;
-  rating: number;
-}
-
-function ProductCard({ id, images, name, price, rating }: ProductCardProps) {
-  return (
-    <Link href={`/product/${id}`} className="block">
-      <div className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
-        <div className="relative aspect-square">
-          <Image
-            src={images[0] || "/placeholder.svg"}
-            alt={name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        </div>
-        <div className="p-4">
-          <h3 className="font-semibold text-gray-800 truncate">{name}</h3>
-          <p className="font-bold text-teal-600 mt-1">৳{price.toFixed(2)}</p>
-          <div className="flex items-center mt-2">
-            <div className="flex text-yellow-400">
-              {Array(5)
-                .fill(0)
-                .map((_, i) => (
-                  <span key={i}>{i < Math.floor(rating) ? "★" : "☆"}</span>
-                ))}
-            </div>
-            <span className="ml-1 text-sm text-gray-600">{rating}</span>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
 }

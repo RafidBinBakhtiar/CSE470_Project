@@ -3,13 +3,14 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Search, Mail, Bell, User, Menu, ChevronRight, ChevronLeft, Star, Plus, LogOut, Settings, Package } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useUser } from './context/UserContext'
 import Footer from '../components/ui/Footer'
 import { cn } from '../lib/utils'
 import CartIcon from './components/CartIcon'
 import { products } from '@/app/utils/productUtils'
 import { useRouter } from "next/navigation"
+import useBatchRatings from './hooks/useBatchRatings'
 
 // Helper function to get all products
 const getAllProducts = (shoesProducts: any[], clothingProducts: any[], accessoriesProducts: any[]) => {
@@ -83,6 +84,63 @@ function SearchBar({ products }: { products: any[] }) {
   );
 }
 
+// Product Card Component definition
+interface ProductCardProps {
+  id: string;
+  images: string[];
+  name: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  className?: string;
+  getRatingFn?: (id: string) => { rating: number; reviewCount: number } | null;
+}
+
+const ProductCard = ({ 
+  id, 
+  images, 
+  name, 
+  price, 
+  rating, 
+  reviews, 
+  className,
+  getRatingFn
+}: ProductCardProps) => {
+  const ratingData = getRatingFn ? getRatingFn(id) : null;
+  const displayRating = ratingData ? ratingData.rating : rating;
+  const displayReviewCount = ratingData ? ratingData.reviewCount : reviews;
+  
+  return (
+    <Link href={`/product/${id}`} className={cn('group', className)}>
+      <div className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
+        <div className="relative aspect-square">
+          <Image
+            src={images[0]}
+            alt={name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+        <div className="p-4">
+          <h3 className="font-semibold text-gray-800 truncate">{name}</h3>
+          <p className="font-bold text-teal-600 mt-1">৳{price.toFixed(2)}</p>
+          <div className="flex items-center mt-2">
+            <div className="flex text-yellow-400">
+              {Array(5)
+                .fill(0)
+                .map((_, i) => (
+                  <span key={i}>{i < Math.floor(displayRating) ? "★" : "☆"}</span>
+                ))}
+            </div>
+            <span className="ml-1 text-sm text-gray-600">{displayRating.toFixed(1)}</span>
+            <span className="ml-1 text-xs text-gray-500">({displayReviewCount})</span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+};
+
 export default function Home() {
   const [currentShoesPage, setCurrentShoesPage] = useState(0);
   const [currentClothingPage, setCurrentClothingPage] = useState(0);
@@ -106,9 +164,9 @@ export default function Home() {
   const accessoriesProducts = products.filter(product => product.category === 'accessories');
 
   // Split products into pages of 5 items each
-  const shoesPages = [];
-  const clothingPages = [];
-  const accessoriesPages = [];
+  const shoesPages: any[][] = [];
+  const clothingPages: any[][] = [];
+  const accessoriesPages: any[][] = [];
 
   for (let i = 0; i < shoesProducts.length; i += 5) {
     shoesPages.push(shoesProducts.slice(i, i + 5));
@@ -121,6 +179,22 @@ export default function Home() {
   for (let i = 0; i < accessoriesProducts.length; i += 5) {
     accessoriesPages.push(accessoriesProducts.slice(i, i + 5));
   }
+
+  // Get all product IDs for the batch ratings hook
+  const allDisplayedProductIds = useMemo<string[]>(() => {
+    const currentShoes = shoesPages[currentShoesPage] || [];
+    const currentClothes = clothingPages[currentClothingPage] || [];
+    const currentAccessories = accessoriesPages[currentAccessoriesPage] || [];
+    
+    return [
+      ...currentShoes.map((product: any) => product.id),
+      ...currentClothes.map((product: any) => product.id),
+      ...currentAccessories.map((product: any) => product.id)
+    ];
+  }, [currentShoesPage, currentClothingPage, currentAccessoriesPage, shoesPages, clothingPages, accessoriesPages]);
+
+  // Use the batch ratings hook
+  const { getRating } = useBatchRatings(allDisplayedProductIds);
 
   // Get all products for search
   const allProducts = products;
@@ -381,7 +455,7 @@ export default function Home() {
             <div className="flex">
               <div className="relative w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {shoesPages[currentShoesPage].map((product, index) => (
+                  {shoesPages[currentShoesPage]?.map((product, index) => (
                     <ProductCard
                       key={index}
                       id={product.id}
@@ -389,6 +463,8 @@ export default function Home() {
                       name={product.name}
                       price={product.price}
                       rating={product.rating}
+                      reviews={product.reviews}
+                      getRatingFn={getRating}
                     />
                   ))}
                 </div>
@@ -426,7 +502,7 @@ export default function Home() {
             <div className="flex">
               <div className="relative w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {clothingPages[currentClothingPage].map((product, index) => (
+                  {clothingPages[currentClothingPage]?.map((product, index) => (
                     <ProductCard
                       key={index}
                       id={product.id}
@@ -434,6 +510,8 @@ export default function Home() {
                       name={product.name}
                       price={product.price}
                       rating={product.rating}
+                      reviews={product.reviews}
+                      getRatingFn={getRating}
                     />
                   ))}
                 </div>
@@ -471,7 +549,7 @@ export default function Home() {
             <div className="flex">
               <div className="relative w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {accessoriesPages[currentAccessoriesPage].map((product, index) => (
+                  {accessoriesPages[currentAccessoriesPage]?.map((product, index) => (
                     <ProductCard
                       key={index}
                       id={product.id}
@@ -479,6 +557,8 @@ export default function Home() {
                       name={product.name}
                       price={product.price}
                       rating={product.rating}
+                      reviews={product.reviews}
+                      getRatingFn={getRating}
                     />
                   ))}
                 </div>
@@ -605,43 +685,3 @@ export default function Home() {
     </div>
   )
 }
-
-interface ProductCardProps {
-  id: string;
-  images: string[];
-  name: string;
-  price: number;
-  rating: number;
-  className?: string;
-}
-
-const ProductCard = ({ id, images, name, price, rating, className }: ProductCardProps) => {
-  return (
-    <Link href={`/product/${id}`} className={cn('group', className)}>
-      <div className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300">
-        <div className="relative aspect-square">
-          <Image
-            src={images[0]}
-            alt={name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        </div>
-        <div className="p-4">
-          <h3 className="font-semibold text-gray-800 truncate">{name}</h3>
-          <p className="font-bold text-teal-600 mt-1">৳{price.toFixed(2)}</p>
-          <div className="flex items-center mt-2">
-            <div className="flex text-yellow-400">
-              {Array(5)
-                .fill(0)
-                .map((_, i) => (
-                  <span key={i}>{i < Math.floor(rating) ? "★" : "☆"}</span>
-                ))}
-            </div>
-            <span className="ml-1 text-sm text-gray-600">{rating}</span>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-};

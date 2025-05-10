@@ -15,6 +15,7 @@ import { useUser } from '@/app/context/UserContext';
 import { useCart } from '@/app/context/CartContext';
 import CartIcon from '../../components/CartIcon';
 import IframeModelViewer from '@/app/components/IframeModelViewer';
+import ProductReviews from '@/app/components/ProductReviews';
 
 // CSS for hiding scrollbar
 const styles = `
@@ -48,6 +49,8 @@ export default function ProductPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSearchQuery, setActiveSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [productRating, setProductRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
 
   useEffect(() => {
     const productIdOrName = params.id as string;
@@ -60,6 +63,13 @@ export default function ProductPage() {
 
     if (productData) {
       setProduct(productData);
+      // Set initial rating and review count from static data
+      setProductRating(productData.rating);
+      setReviewCount(productData.reviews);
+      
+      // Try to get dynamic rating data from API
+      fetchProductRating(productData.id);
+      
       // Get similar products based on the product name
       const similarProducts = getSimilarProducts(productData.name);
       setSimilarProducts(similarProducts);
@@ -70,6 +80,28 @@ export default function ProductPage() {
     
     setLoading(false);
   }, [params.id, router]);
+
+  // Fetch the dynamic rating data from the database
+  const fetchProductRating = async (productId: string) => {
+    try {
+      const response = await fetch(`/api/reviews/rating?productId=${productId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.rating) {
+          setProductRating(data.rating.averageRating);
+          setReviewCount(data.rating.reviewCount);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch product rating:", error);
+    }
+  };
+
+  // Handle updates to the rating from new reviews
+  const handleRatingUpdate = (newRating: number, newReviewCount: number) => {
+    setProductRating(newRating);
+    setReviewCount(newReviewCount);
+  };
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -357,7 +389,7 @@ export default function ProductPage() {
                         <Star
                           key={i}
                           className={`w-5 h-5 ${
-                            i < Math.floor(product.rating)
+                            i < Math.floor(productRating)
                               ? 'fill-yellow-400 text-yellow-400'
                               : 'text-gray-300'
                           }`}
@@ -365,7 +397,7 @@ export default function ProductPage() {
                       ))}
                   </div>
                   <span className="ml-2 text-sm text-gray-600">
-                    {product.rating} ({product.reviews} reviews)
+                    {productRating.toFixed(1)} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})
                   </span>
                 </div>
               </div>
@@ -532,6 +564,16 @@ export default function ProductPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Review section */}
+      <div className="container mx-auto px-4 py-8">
+        <ProductReviews 
+          productId={product.id}
+          initialRating={productRating}
+          initialReviewCount={reviewCount}
+          onRatingUpdate={handleRatingUpdate}
+        />
       </div>
 
       {/* Similar Products */}
