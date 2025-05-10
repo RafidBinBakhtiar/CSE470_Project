@@ -1,3 +1,4 @@
+// This file implements the product detail view, including images, descriptions, and specifications.
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,13 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Footer from '@/components/ui/Footer';
-import { getProductById, getProductByName, getSimilarProducts, getProductWithReviews, ProductWithReviews } from '@/app/utils/productUtils';
+import { getProductById, getProductByName, getSimilarProducts } from '@/app/utils/productUtils';
 import { useUser } from '@/app/context/UserContext';
 import { useCart } from '@/app/context/CartContext';
 import CartIcon from '../../components/CartIcon';
 import IframeModelViewer from '@/app/components/IframeModelViewer';
-import ReviewForm from '@/app/components/ReviewForm';
-import ReviewList from '@/app/components/ReviewList';
 
 // CSS for hiding scrollbar
 const styles = `
@@ -39,7 +38,7 @@ export default function ProductPage() {
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [product, setProduct] = useState<ProductWithReviews | null>(null);
+  const [product, setProduct] = useState<any>(null);
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -51,30 +50,25 @@ export default function ProductPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const productData = getProductWithReviews(params.id as string);
-        if (productData) {
-          setProduct({
-            ...productData,
-            reviews: productData.reviews || []
-          });
-        } else {
-          setProduct(null);
-        }
-        // Get similar products based on the product name
-        const similarProducts = getSimilarProducts(productData?.name || '');
-        setSimilarProducts(similarProducts);
-      } catch (error) {
-        console.error('Error fetching product:', error);
-        // If product not found, redirect to browse page
-        router.push('/browse');
-      } finally {
-        setLoading(false);
-      }
-    };
+    const productIdOrName = params.id as string;
+    let productData = getProductById(productIdOrName);
+    
+    // If not found by ID, try finding by name
+    if (!productData) {
+      productData = getProductByName(productIdOrName);
+    }
 
-    fetchProduct();
+    if (productData) {
+      setProduct(productData);
+      // Get similar products based on the product name
+      const similarProducts = getSimilarProducts(productData.name);
+      setSimilarProducts(similarProducts);
+    } else {
+      // If product not found, redirect to browse page
+      router.push('/browse');
+    }
+    
+    setLoading(false);
   }, [params.id, router]);
 
   const handleAddToCart = () => {
@@ -110,13 +104,34 @@ export default function ProductPage() {
     if (productName.toLowerCase().includes('jordan luka 3')) {
       return '/Jordan Luka 3.glb';
     }
+    if (productName.toLowerCase().includes('jordan 6 rings')) {
+      return '/Jordan 6 Rings.glb';
+    }
     // Add support for PUMA x LAMELO BALL Golden Child
     if (productName.toLowerCase().includes('puma') && productName.toLowerCase().includes('lamelo') && productName.toLowerCase().includes('golden')) {
       return '/PUMA x Lamelo Golden.glb';
     }
+    if (productName.toLowerCase().includes('puma') && productName.toLowerCase().includes('fenty')) {
+      return '/Fenty x PUMA Avanti LS Stitched.glb';
+    }
+    if (productName.toLowerCase().includes('nike') && productName.toLowerCase().includes('vomero')) {
+      return '/Nike Vomero 18.glb';
+    }
+    if (productName.toLowerCase().includes('f1')) {
+      return '/F1 Japan Tee.glb';
+    }
+    if (productName.toLowerCase().includes('jordan') && productName.toLowerCase().includes('1 mid')) {
+      return '/Jordan 1 Mid.glb';
+    }
+    if (productName.toLowerCase().includes('adidas') && productName.toLowerCase().includes('camo')) {
+      return '/adidas Essentials Camo Pants.glb';
+    }
     // Add support for PUMA Blue Tee
     if (productName.toLowerCase().includes('puma') && productName.toLowerCase().includes('blue tee')) {
       return '/Blue PUMA Tee.glb';
+    }
+    if (productName.toLowerCase().includes('adidas') && productName.toLowerCase().includes('hoodie')) {
+      return '/adidas NY Bulls Red Hoodie.glb';
     }
     // Add support for adidas Samba OG Shoes
     if (productName.toLowerCase().includes('adidas') && productName.toLowerCase().includes('samba')) {
@@ -126,17 +141,17 @@ export default function ProductPage() {
     if (productName.toLowerCase().includes('adidas') && productName.toLowerCase().includes('shorts')) {
       return '/adidas Black Shorts Sports.glb';
     }
-    return null;
-  };
-
-  const handleReviewSubmitted = () => {
-    const updatedProduct = getProductWithReviews(params.id as string);
-    if (updatedProduct) {
-      setProduct({
-        ...updatedProduct,
-        reviews: updatedProduct.reviews || []
-      });
+    if (productName.toLowerCase().includes('nike') && productName.toLowerCase().includes('dri-fit')) {
+      return '/Nike Dri-FIT Legacy91 Cap.glb';
     }
+    if (productName.toLowerCase().includes('adidas') && productName.toLowerCase().includes('backpack')) {
+      return '/adidas Classic Backpack.glb';
+    }
+    if (productName.toLowerCase().includes('puma') && productName.toLowerCase().includes('pioneer')) {
+      return '/PUMA Pioneer Wallet.glb';
+    }
+    
+    return null;
   };
 
   if (loading) {
@@ -350,7 +365,7 @@ export default function ProductPage() {
                       ))}
                   </div>
                   <span className="ml-2 text-sm text-gray-600">
-                    {product.rating} ({product.reviews.length} reviews)
+                    {product.rating} ({product.reviews} reviews)
                   </span>
                 </div>
               </div>
@@ -517,27 +532,6 @@ export default function ProductPage() {
             </div>
           </div>
         </div>
-
-        {/* Reviews Section */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
-              <ReviewForm
-                productId={product.id}
-                userId="current-user-id" // Replace with actual user ID from auth
-                onReviewSubmitted={handleReviewSubmitted}
-              />
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">All Reviews</h3>
-              <ReviewList reviews={product.reviews || []} />
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Similar Products */}
@@ -627,6 +621,8 @@ function getColorValue(colorName: string): string {
     'Navy': '#000080',
     'Gold': '#FFD700',
     'Silver': '#C0C0C0',
+    'Dark Cyan': '#0095d4',
+    'Navy Blue': '#000080',
     'Black/Red': '#000000',
     'White/Black': '#FFFFFF',
     'Grey/Blue': '#808080',
@@ -638,6 +634,7 @@ function getColorValue(colorName: string): string {
     'Red/Black': '#FF0000',
     'White/Blue': '#FFFFFF',
     'Grey/Orange': '#808080',
+    'Midnight Blue': '#3c4d6d',
   };
   
   return colorMap[colorName] || '#CCCCCC'; // Default to light gray if color not found

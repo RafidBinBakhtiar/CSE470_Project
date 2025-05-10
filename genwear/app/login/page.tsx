@@ -1,3 +1,4 @@
+// This file implements the user login functionality.
 'use client';
 
 import { useState } from 'react';

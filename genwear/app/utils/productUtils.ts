@@ -1,24 +1,12 @@
-// Interface for Product
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  category?: string;
-  description: string;
-  features: string[];
-  sizes: string[];
-  colors: string[];
-  images: string[];
-  modelUrl?: string;
-}
-
 // Mock product data (replace with actual data from API later)
-export const products: Product[] = [
+export const products = [
   // Shoes
   {
     id: 'jordan-6-rings',
     name: 'Nike Air Jordan 6 Rings',
     price: 4249.99,
+    rating: 4.9,
+    reviews: 128,
     category: 'shoes',
     description: 'The Air Jordan 6 Rings combines elements from the 6 championship rings Michael Jordan earned during his illustrious career. This shoe features a premium leather upper with a clean, modern design that pays homage to the legacy of the greatest basketball player of all time.',
     features: [
@@ -32,15 +20,17 @@ export const products: Product[] = [
     colors: ['Black/Red', 'White/Black', 'Grey/Blue'],
     images: [
       '/JORDAN+6+RINGS-Photoroom.png',
-      '/JORDAN+6+RINGS.avif',
+      '/JORDAN+6+RINGS-1.avif',
       '/JORDAN+6+RINGS-2.avif',
     ],
-    modelUrl: '/JORDAN+6+RINGS.glb',
+    modelUrl: '/Jordan 6 Rings.glb',
   },
   {
     id: 'samba',
     name: 'adidas Samba OG Shoes',
     price: 2549.99,
+    rating: 4.9,
+    reviews: 95,
     category: 'shoes',
     description: 'The adidas Samba OG Shoes are a timeless classic that have been a favorite among soccer players and casual wearers alike for decades. These shoes feature a full grain leather upper, a gum rubber outsole, and the iconic 3-Stripes design.',
     features: [
@@ -55,7 +45,7 @@ export const products: Product[] = [
     images: [
       '/Samba_OG_Shoes_White_JH5633_04_standard-Photoroom.png',
       '/Samba_OG_Shoes_White_JH5633_02_standard_hover-Photoroom.png',
-      '/Samba_OG_Shoes_White_JH5633_03_standard-Photoroom.png',
+      '/IF3814_01_standard.avif',
     ],
     modelUrl: '/adidas Samba OG Shoes.glb',
   },
@@ -63,6 +53,8 @@ export const products: Product[] = [
     id: 'lamelo-shoes',
     name: 'PUMA x LAMELO BALL Golden Child',
     price: 3124.99,
+    rating: 5.0,
+    reviews: 78,
     category: 'shoes',
     description: 'The PUMA x LAMELO BALL Golden Child is a collaboration between PUMA and NBA star LaMelo Ball. These shoes feature a bold design with golden accents, premium materials, and innovative cushioning technology for optimal performance on and off the court.',
     features: [
@@ -85,6 +77,8 @@ export const products: Product[] = [
     id: 'luka-3',
     name: 'Nike Air Jordan Luka 3',
     price: 3249.99,
+    rating: 5.0,
+    reviews: 112,
     category: 'shoes',
     description: 'The Nike Air Jordan Luka 3 is designed in collaboration with NBA star Luka Dončić. These shoes feature a lightweight construction, responsive cushioning, and a design inspired by Luka\'s playing style and heritage.',
     features: [
@@ -107,8 +101,10 @@ export const products: Product[] = [
     id: 'fenty-x-puma',
     name: 'FENTY x PUMA Avanti LS Stitched',
     price: 3644.99,
+    rating: 4.8,
+    reviews: 44,
     category: 'shoes',
-    description: "This is the Avanti LS like you've never seen it before. Appearing in two bold, beautiful colorways, the Avanti LS Stitched features crochet and stitching details and a classic soccer gum sole. Inspired by the legendary PUMA KING soccer cleat, the Avanti LS Stitched is here to play.",
+    description: 'This is the Avanti LS like you’ve never seen it before. Appearing in two bold, beautiful colorways, the Avanti LS Stitched features crochet and stitching details and a classic soccer gum sole. Inspired by the legendary PUMA KING soccer cleat, the Avanti LS Stitched is here to play.',
     features: [
       'Regular fit for everyday comfort',
       'Premium tumbled leather upper for a refined look',
@@ -118,7 +114,8 @@ export const products: Product[] = [
       'Crochet mesh underlay for breathability and detail',
       'Moulded sockliner for enhanced cushioning',
       'FENTY x PUMA co-branding for a unique collaboration touch',
-    ],
+    ]
+    ,
     sizes: ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12'],
     colors: ['Black/Red', 'White/Black', 'Grey/Blue'],
     images: [
@@ -126,11 +123,14 @@ export const products: Product[] = [
       '/FENTY-x-PUMA-Avanti-LS-Stitched-Men\'s-Sneakers.avif',
       '/FENTY-x-PUMA-Avanti-LS-Stitched-Men\'s-Sneakers (1).avif',
     ],
+    modelUrl: '/Fenty x PUMA Avanti LS Stitched.glb',
   },
   {
     id: 'jordan-1-mid',
     name: 'Nike Air Jordan 1 Mid',
     price: 3124.99,
+    rating: 4.6,
+    reviews: 89,
     category: 'shoes',
     description: 'The Nike Air Jordan 1 Mid is a mid-top version of the iconic Air Jordan 1. These shoes feature a classic design with modern materials, offering style and comfort for everyday wear.',
     features: [
@@ -144,15 +144,42 @@ export const products: Product[] = [
     colors: ['Black/Red', 'White/Black', 'Grey/Blue'],
     images: [
       '/WMNS+AIR+JORDAN+1+MID-Photoroom.png',
-      '/WMNS+AIR+JORDAN+1+MID-Photoroom.png',
-      '/WMNS+AIR+JORDAN+1+MID-Photoroom.png',
+      '/Jordan-1 mid-2.jpg',
+      '/Jordan-1 mid-3.jpg',
     ],
+    modelUrl: '/Jordan 1 Mid.glb',
+  },
+  {
+    id: 'vomero-18',
+    name: 'Nike Vomero 18',
+    price: 2999.99,
+    rating: 4.8,
+    reviews: 67,
+    category: 'shoes',
+    description: 'The Nike Vomero 18 offers plush cushioning and a smooth ride for runners seeking comfort and performance. Featuring a breathable mesh upper, responsive midsole, and durable outsole for everyday training.',
+    features: [
+      'Breathable mesh upper for ventilation',
+      'Responsive foam midsole for cushioning',
+      'Durable rubber outsole for traction',
+      'Padded collar and tongue for comfort',
+      'Lightweight and supportive design',
+    ],
+    sizes: ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '11.5', '12'],
+    colors: ['Black/White', 'Blue/Volt', 'Grey/Red'],
+    images: [
+      '/NIKE+VOMERO+18-Photoroom.png',
+      '/NIKE+VOMERO+18 (1).png',
+      '/NIKE+VOMERO+18.avif',
+    ],
+    modelUrl: '/Nike Vomero 18.glb',
   },
   // Clothing
   {
     id: 'adidas-shorts',
-    name: 'adidas Black Shorts Sports',
+    name: 'adidas Shorts Sports',
     price: 2549.99,
+    rating: 4.9,
+    reviews: 85,
     category: 'clothing',
     description: 'The adidas Black Shorts Sports are perfect for both training and casual wear. Made with lightweight, breathable fabric, these shorts offer comfort and freedom of movement.',
     features: [
@@ -163,19 +190,22 @@ export const products: Product[] = [
       'Quick-drying material',
     ],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    colors: ['Black', 'Navy', 'Grey'],
+    colors: ['Black', 'Midnight Blue', 'Dark Cyan'],
     images: [
       '/AEROREADY_Designed_to_Move_Woven_Sport_Shorts_Black_GT8161_01_laydown-Photoroom.png',
-      '/AEROREADY_Designed_to_Move_Woven_Sport_Shorts_Black_GT8161_01_laydown-Photoroom.png',
-      '/AEROREADY_Designed_to_Move_Woven_Sport_Shorts_Black_GT8161_01_laydown-Photoroom.png',
+      '/adidas-AeroReady-Designed-To-Move-Woven-Shorts-GT8161.jpg',
+      '/AdidasAEROREADYDesignedtoMoveWovenSportShortsBlackGT8161SportstarProNewcastle_NSW2300Australia.2_1024x1024.jpg',
     ],
+    modelUrl: '/adidas Black Shorts Sports.glb',
   },
   {
     id: 'adidas-pants',
-    name: 'Tiro 24 Training Pants',
+    name: 'adidas Essentials Camo Pants',
     price: 3124.99,
+    rating: 5.0,
+    reviews: 92,
     category: 'clothing',
-    description: 'The Tiro 24 Training Pants are a modern take on the classic track pants. With a tapered fit and premium materials, these pants offer style and comfort for everyday wear.',
+    description: 'The adidas Essentials Camo Pants are a modern take on the classic track pants. With a tapered fit and premium materials, these pants offer style and comfort for everyday wear.',
     features: [
       'Premium cotton blend fabric',
       'Tapered fit for modern style',
@@ -184,17 +214,20 @@ export const products: Product[] = [
       '3-Stripes design',
     ],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    colors: ['Black', 'Navy', 'Grey'],
+    colors: ['Black'],
     images: [
       '/3-Stripes_Tricot_Regular_Tapered_Track_Pants_Black_JI8809_01_laydown-Photoroom.png',
-      '/3-Stripes_Tricot_Regular_Tapered_Track_Pants_Black_JI8809_02_laydown-Photoroom.png',
-      '/3-Stripes_Tricot_Regular_Tapered_Track_Pants_Black_JI8809_03_laydown-Photoroom.png',
+      '/Essentials_Camo_Pants_Black_JE5698_21_model.avif',
+      '/Essentials_Camo_Pants_Black_JE5698_23_hover_model.avif',
     ],
+    modelUrl: '/adidas Essentials Camo Pants.glb',
   },
   {
     id: 'adidas-hoodie',
     name: 'adidas NY Bulls Red Hoodie',
     price: 1999.99,
+    rating: 4.8,
+    reviews: 76,
     category: 'clothing',
     description: 'The adidas NY Bulls Red Hoodie is a stylish and comfortable hoodie perfect for showing your team spirit. Made with soft, warm fabric, this hoodie is ideal for casual wear.',
     features: [
@@ -205,17 +238,20 @@ export const products: Product[] = [
       'Team logo design',
     ],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    colors: ['Red', 'Black', 'White'],
+    colors: ['Red'],
     images: [
       '/New_York_Red_Bulls_UBP_Travel_Hoodie_Red_JE5524_01_laydown-Photoroom.png',
-      '/New_York_Red_Bulls_UBP_Travel_Hoodie_Red_JE5524_02_laydown-Photoroom.png',
-      '/New_York_Red_Bulls_UBP_Travel_Hoodie_Red_JE5524_03_laydown-Photoroom.png',
+      '/New_York_Red_Bulls_UBP_Travel_Hoodie_Red_JE5524_21_model.avif',
+      '/New_York_Red_Bulls_UBP_Travel_Hoodie_Red_JE5524_23_hover_model.avif',
     ],
+    modelUrl: '/adidas NY Bulls Red Hoodie.glb',
   },
   {
     id: 'puma-tee',
     name: 'PUMA Blue Tee',
     price: 4249.99,
+    rating: 4.9,
+    reviews: 88,
     category: 'clothing',
     description: 'The PUMA Blue Tee is a comfortable and stylish t-shirt perfect for everyday wear. Made with soft, breathable fabric, this tee offers comfort and style.',
     features: [
@@ -232,11 +268,14 @@ export const products: Product[] = [
       '/PUMA Blue Tee-1.jpg',
       '/PUMA Blue Tee-2.jpg',
     ],
+    modelUrl: '/Blue PUMA Tee.glb',
   },
   {
     id: 'fenty-tee',
     name: 'F1 Men\'s Japan',
     price: 3124.99,
+    rating: 4.6,
+    reviews: 67,
     category: 'clothing',
     description: 'The F1 Men\'s Japan tee is a stylish t-shirt featuring F1 racing design. Made with comfortable fabric, this tee is perfect for showing your love for Formula 1 racing.',
     features: [
@@ -247,18 +286,21 @@ export const products: Product[] = [
       'Comfortable collar',
     ],
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    colors: ['Black', 'White', 'Red'],
+    colors: ['Black'],
     images: [
-      '/F1®-Japan-Men\'s-Tee-Photoroom.png',
-      '/F1®-Japan-Men\'s-Tee-02-Photoroom.png',
-      '/F1®-Japan-Men\'s-Tee-03-Photoroom.png',
+      '/F1®-Japan-Men\'s-Tee (2).avif',
+      '/F1®-Japan-Men\'s-Tee (1).avif',
+      '/F1®-Japan-Men\'s-Tee (3).avif',
     ],
+    modelUrl: '/F1 Japan Tee.glb',
   },
   // Accessories
   {
     id: 'legacy-cap',
     name: 'Nike Dri-FIT Legacy91 Cap',
     price: 624.99,
+    rating: 4.8,
+    reviews: 156,
     category: 'accessories',
     description: 'The Nike Dri-FIT Legacy91 Cap is a classic baseball cap with modern performance features. Made with Dri-FIT technology, this cap keeps you cool and dry during activities.',
     features: [
@@ -275,11 +317,14 @@ export const products: Product[] = [
       '/U+NK+DF+L91+SPORT+CAP (1).avif',
       '/U+NK+DF+L91+SPORT+CAP (2).avif',
     ],
+    modelUrl: '/Nike Dri-FIT Legacy91 Cap.glb',
   },
   {
     id: 'classic-backpack',
     name: 'adidas Classic Backpack',
     price: 1149.99,
+    rating: 4.7,
+    reviews: 124,
     category: 'accessories',
     description: 'The adidas Classic Backpack is a versatile and durable backpack perfect for everyday use. With multiple compartments and comfortable straps, this backpack offers style and functionality.',
     features: [
@@ -296,11 +341,14 @@ export const products: Product[] = [
       '/Adicolor_Backpack_Black_IJ0761_02_standard.avif',
       '/Adicolor_Backpack_Black_IJ0761_04_standard.avif',
     ],
+    modelUrl: '/adidas Classic Backpack.glb',
   },
   {
     id: 'evercat-duffel',
     name: 'PUMA Evercat Transformation Duffel',
     price: 999.99,
+    rating: 4.5,
+    reviews: 98,
     category: 'accessories',
     description: 'The PUMA Evercat Transformation Duffel is a versatile bag that can be used as a duffel or backpack. With multiple compartments and comfortable straps, this bag offers style and functionality.',
     features: [
@@ -319,49 +367,11 @@ export const products: Product[] = [
     ],
   },
   {
-    id: 'brasilia-gymsack',
-    name: 'Nike Brasilia Training Gymsack',
-    price: 499.99,
-    description: 'The Nike Brasilia Training Gymsack is a durable and spacious gym bag perfect for carrying your workout essentials. With multiple compartments and comfortable straps, this bag offers style and functionality.',
-    features: [
-      'Multiple compartments',
-      'Comfortable shoulder strap',
-      'Nike logo design',
-      'Water-resistant material',
-      'Durable construction',
-    ],
-    sizes: ['One Size'],
-    colors: ['Black', 'Navy', 'Grey'],
-    images: [
-      '/placeholder.svg',
-      '/placeholder.svg',
-      '/placeholder.svg',
-    ],
-  },
-  {
-    id: 'originals-socks',
-    name: 'adidas Originals Socks 3-Pack',
-    price: 424.99,
-    description: 'The adidas Originals Socks 3-Pack includes three pairs of comfortable and stylish socks. Made with soft, breathable fabric, these socks offer comfort and style.',
-    features: [
-      'Soft, breathable fabric',
-      'Comfortable fit',
-      '3-Stripes design',
-      'Machine washable',
-      'Durable construction',
-    ],
-    sizes: ['One Size'],
-    colors: ['Black/White', 'White/Black', 'Grey/Black'],
-    images: [
-      '/placeholder.svg',
-      '/placeholder.svg',
-      '/placeholder.svg',
-    ],
-  },
-  {
     id: 'elite-socks',
     name: 'Nike Elite Basketball Socks',
     price: 474.99,
+    rating: 4.7,
+    reviews: 134,
     category: 'accessories',
     description: 'The Nike Elite Basketball Socks are designed for optimal performance on the court. With cushioned support and moisture-wicking technology, these socks keep your feet comfortable during intense games.',
     features: [
@@ -383,6 +393,8 @@ export const products: Product[] = [
     id: 'pioneer-wallet',
     name: 'PUMA Pioneer Wallet',
     price: 649.99,
+    rating: 4.5,
+    reviews: 92,
     category: 'accessories',
     description: 'The PUMA Pioneer Wallet is a sleek and functional accessory for everyday use. With multiple card slots and a billfold compartment, this wallet combines style with practicality.',
     features: [
@@ -399,11 +411,14 @@ export const products: Product[] = [
       '/Pioneer-Wallet (1).avif',
       '/Pioneer-Wallet (2).avif',
     ],
+    modelUrl: '/PUMA Pioneer Wallet.glb',
   },
   {
     id: 'training-gloves',
-    name: 'adidas Training Gloves',
+    name: 'adidas AWP Main Training Gloves',
     price: 749.99,
+    rating: 4.6,
+    reviews: 78,
     category: 'accessories',
     description: 'The adidas Training Gloves provide essential protection and grip for your workout sessions. With breathable material and reinforced padding, these gloves enhance your training experience.',
     features: [
@@ -416,38 +431,19 @@ export const products: Product[] = [
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Black/White', 'Grey/Black', 'Blue/White'],
     images: [
-      '/placeholder.svg',
-      '/placeholder.svg',
-      '/placeholder.svg',
+      '/AWP_MAIN_-_Cold_Weather_Gloves_Black_JJ9472_01_00_standard.avif',
+      '/AWP_MAIN_-_Cold_Weather_Gloves_Black_JJ9472_41_detail_hover.avif',
+      '/AWP_MAIN_-_Cold_Weather_Gloves_Black_JJ9472_42_detail.avif',
     ],
   },
   {
-    id: 'resistance-band',
-    name: 'Nike Resistance Band Set',
-    price: 874.99,
-    category: 'accessories',
-    description: 'The Nike Resistance Band Set includes multiple resistance levels for versatile workout options. Perfect for strength training, rehabilitation, or adding intensity to your exercises.',
-    features: [
-      'Multiple resistance levels',
-      'Durable latex material',
-      'Non-slip grip',
-      'Carrying bag included',
-      'Exercise guide included',
-    ],
-    sizes: ['One Size'],
-    colors: ['Light', 'Medium', 'Heavy'],
-    images: [
-      '/placeholder.svg',
-      '/placeholder.svg',
-      '/placeholder.svg',
-    ],
-  },
-  {
-    id: 'performance-headband',
-    name: 'PUMA Performance Headband',
+    id: 'training-headband',
+    name: 'PUMA Training Headband',
     price: 324.99,
+    rating: 4.4,
+    reviews: 112,
     category: 'accessories',
-    description: 'The PUMA Performance Headband keeps sweat away from your eyes during intense workouts. Made with moisture-wicking material and featuring a comfortable fit, this headband is essential for any active lifestyle.',
+    description: 'The PUMA Training Headband keeps sweat away from your eyes during intense workouts. Made with moisture-wicking material and featuring a comfortable fit, this headband is essential for any active lifestyle.',
     features: [
       'Moisture-wicking material',
       'Comfortable fit',
@@ -458,75 +454,12 @@ export const products: Product[] = [
     sizes: ['One Size'],
     colors: ['Black', 'White', 'Grey'],
     images: [
-      '/placeholder.svg',
-      '/placeholder.svg',
-      '/placeholder.svg',
+      '/Training-Headband.avif',
+      '/Training-Headband (1).avif',
+      '/Training-Headband (2).avif',
     ],
   },
 ];
-
-// Interface for individual reviews
-export interface Review {
-  id: string;
-  userId: string;
-  productId: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-}
-
-// Interface for product with reviews
-export interface ProductWithReviews extends Omit<Product, 'reviews'> {
-  reviews: Review[];
-  rating: number;
-}
-
-// Mock reviews data (replace with actual database later)
-let reviews: Review[] = [];
-
-// Function to add a new review
-export function addReview(productId: string, userId: string, rating: number, comment: string): Review {
-  const newReview: Review = {
-    id: Math.random().toString(36).substr(2, 9),
-    userId,
-    productId,
-    rating,
-    comment,
-    createdAt: new Date().toISOString(),
-  };
-  
-  reviews = [...reviews, newReview];
-  return newReview;
-}
-
-// Function to get reviews for a product
-export function getProductReviews(productId: string): Review[] {
-  return reviews.filter(review => review.productId === productId) || [];
-}
-
-// Function to calculate average rating for a product
-export function calculateAverageRating(productId: string): number {
-  const productReviews = getProductReviews(productId);
-  if (!productReviews || productReviews.length === 0) return 0;
-  
-  const totalRating = productReviews.reduce((sum, review) => sum + review.rating, 0);
-  return Number((totalRating / productReviews.length).toFixed(1));
-}
-
-// Function to get product with reviews
-export function getProductWithReviews(productId: string): ProductWithReviews | undefined {
-  const product = getProductById(productId);
-  if (!product) return undefined;
-  
-  const productReviews = getProductReviews(productId);
-  const averageRating = calculateAverageRating(productId);
-  
-  return {
-    ...product,
-    reviews: productReviews,
-    rating: averageRating,
-  };
-}
 
 // Function to get product by ID
 export function getProductById(id: string) {

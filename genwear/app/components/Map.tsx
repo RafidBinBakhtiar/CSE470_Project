@@ -10,7 +10,7 @@ interface MapProps {
 }
 
 export default function Map({ 
-  center = [23.773190, 90.424347], // BRAC University coordinates
+  center = [23.773190, 90.424347],
   zoom = 15 
 }: MapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -19,7 +19,6 @@ export default function Map({
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    // Fix for the marker icon issue
     const icon = L.icon({
       iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
       iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -30,21 +29,21 @@ export default function Map({
       shadowSize: [41, 41]
     });
 
-    // Initialize map
+
     mapRef.current = L.map(mapContainerRef.current).setView(center, zoom);
 
-    // Add tile layer
+    
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(mapRef.current);
 
-    // Add marker with custom icon
+    
     const marker = L.marker(center, { icon }).addTo(mapRef.current);
     
-    // Add popup to marker
+ 
     marker.bindPopup('BRAC University').openPopup();
 
-    // Cleanup
+
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();

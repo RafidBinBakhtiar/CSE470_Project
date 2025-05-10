@@ -1,3 +1,4 @@
+// This file implements the product browsing and search functionality, including filters and search bar.
 "use client";
 
 import Image from "next/image"
@@ -108,7 +109,7 @@ export default function Page() {
       rating4: false,
       rating3Below: false
     },
-    priceRange: [0, 20000]
+    priceRange: [0, 5000]
   });
 
   // Add useEffect for debouncing search query
@@ -119,6 +120,17 @@ export default function Page() {
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Add mobile detection and redirection
+  useEffect(() => {
+    // Check if the device is mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    // If it's a mobile device, redirect to mobile-browse
+    if (isMobile) {
+      router.replace('/mobile-browse');
+    }
+  }, [router]);
 
   if (isPageLoading) {
     return (
@@ -228,7 +240,7 @@ export default function Page() {
         rating4: false,
         rating3Below: false
       },
-      priceRange: [0, 20000]
+      priceRange: [0, 5000]
     });
     setCurrentPage(1);
   };
@@ -615,7 +627,7 @@ export default function Page() {
                     </div>
                     <Slider
                       min={0}
-                      max={20000}
+                      max={5000}
                       step={100}
                       value={filters.priceRange}
                       onValueChange={(value) => {
@@ -940,6 +952,7 @@ export default function Page() {
                 <p className="text-teal-700 mb-8">
                   Discover our latest arrivals and featured collections. Stay ahead of the curve with GenWear's cutting-edge designs and exclusive styles.
                 </p>
+               <Link href= "/promotions#featured">
                 <button className="flex items-center text-teal-700 font-semibold text-lg transition-transform">
                   Buy it now
                   <svg
@@ -958,6 +971,7 @@ export default function Page() {
                     <path d="m12 5 7 7-7 7"></path>
                   </svg>
                 </button>
+                </Link>
               </div>
               <div>
                 <Image
@@ -980,6 +994,7 @@ export default function Page() {
                 <p className="text-teal-700 mb-8">
                   Get ready for summer with our exclusive deals on sportswear and accessories. Embrace the sunshine in style!
                 </p>
+                <Link href= "/promotions#summer">
                 <button className="flex items-center text-teal-700 font-semibold text-lg transition-transform">
                   Shop Now
                   <svg
@@ -998,6 +1013,7 @@ export default function Page() {
                     <path d="m12 5 7 7-7 7"></path>
                   </svg>
                 </button>
+                </Link>
               </div>
               <div>
                 <Image

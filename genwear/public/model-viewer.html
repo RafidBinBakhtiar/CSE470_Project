@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/geometries/DecalGeometry.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/geometries/DecalHelper.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/RGBELoader.js"></script>
   <style>
     body {
       margin: 0;
@@ -80,6 +81,8 @@
     .retry-button:hover {
       background-color: #2980b9;
     }
+
+    /* Desktop Controls */
     .controls-container {
       position: absolute;
       top: 10px;
@@ -93,6 +96,101 @@
       gap: 10px;
       max-width: 300px;
     }
+
+    /* Mobile Controls */
+    .mobile-controls {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: white;
+      padding: 15px;
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      transform: translateY(calc(100% - 50px));
+      transition: transform 0.3s ease;
+    }
+
+    .mobile-controls.expanded {
+      transform: translateY(0);
+    }
+
+    .mobile-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      background-color: #f5f5f5;
+      padding: 5px;
+      border-radius: 12px;
+    }
+
+    .mobile-tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      background-color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-tab.active {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .mobile-color-options {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .mobile-color-option {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .mobile-color-option.active {
+      border-color: #3498db;
+    }
+
+    .mobile-upload-button {
+      width: 100%;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    /* Media Queries */
+    @media (max-width: 768px) {
+      .controls-container {
+        display: none;
+      }
+
+      .mobile-controls {
+        display: block;
+      }
+
+      .reset-button {
+        bottom: 70px;
+        right: 15px;
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+    }
+
     .tabs {
       display: flex;
       flex-direction: column;
@@ -186,16 +284,21 @@
       display: none;
     }
     .reset-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 5px 10px;
+      position: fixed;
+      bottom: 70px;
+      right: 15px;
+      padding: 8px 12px;
       background-color: #e74c3c;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 20px;
       cursor: pointer;
       z-index: 5;
+      font-size: 13px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
     .reset-button:hover {
       background-color: #c0392b;
@@ -243,6 +346,7 @@
       <p>Loading 3D model...</p>
     </div>
     
+    <!-- Desktop Controls -->
     <div class="controls-container">
       <div class="tabs">
         <div class="tab active" data-tab="color">
@@ -280,8 +384,44 @@
         </div>
       </div>
     </div>
+
+    <!-- Mobile Controls -->
+    <div class="mobile-controls">
+      <div class="mobile-tabs">
+        <div class="mobile-tab active" data-tab="color">Color</div>
+        <div class="mobile-tab" data-tab="full">Full Texture</div>
+      </div>
+      
+      <div class="mobile-tab-content" id="mobile-color-content">
+        <div class="mobile-color-options">
+          <div class="mobile-color-option active" style="background-color: #EFBD48;" data-color="#EFBD48"></div>
+          <div class="mobile-color-option" style="background-color: #80C670;" data-color="#80C670"></div>
+          <div class="mobile-color-option" style="background-color: #F7268A;" data-color="#F7268A"></div>
+          <div class="mobile-color-option" style="background-color: #F16063;" data-color="#F16063"></div>
+          <div class="mobile-color-option" style="background-color: #35CD96;" data-color="#35CD96"></div>
+          <div class="mobile-color-option" style="background-color: #03BCE4;" data-color="#03BCE4"></div>
+          <div class="mobile-color-option" style="background-color: #9747FF;" data-color="#9747FF"></div>
+          <div class="mobile-color-option" style="background-color: #3591A3;" data-color="#3591A3"></div>
+          <div class="mobile-color-option" style="background-color: #FF6A00;" data-color="#FF6A00"></div>
+          <div class="mobile-color-option" style="background-color: #000000;" data-color="#000000"></div>
+          <div class="mobile-color-option" style="background-color: #CDCDCD;" data-color="#CDCDCD"></div>
+          <div class="mobile-color-option" style="background-color: #ECECEC;" data-color="#ECECEC"></div>
+        </div>
+      </div>
+      
+      <div class="mobile-tab-content" id="mobile-full-content" style="display: none;">
+        <button class="mobile-upload-button" id="mobileUploadFull">Upload Full Texture</button>
+        <input type="file" id="mobileFullFile" accept="image/*" style="display: none;">
+      </div>
+    </div>
     
-    <button id="resetModel" class="reset-button">Reset Model</button>
+    <button id="resetModel" class="reset-button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+        <path d="M3 3v5h5"></path>
+      </svg>
+      Reset
+    </button>
   </div>
 
   <script>
@@ -311,22 +451,29 @@
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
       camera.position.z = 5;
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer = new THREE.WebGLRenderer({ 
+        antialias: true,
+        alpha: true
+      });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.7;
       document.getElementById('container').appendChild(renderer.domElement);
 
       controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
+  
 
-      // Add lights
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-      scene.add(ambientLight);
+      // Add ambient light only
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      directionalLight.position.set(1, 1, 1);
-      scene.add(directionalLight);
+
+      // Load an HDRI environment map for realistic lighting
+      new THREE.RGBELoader().setDataType(THREE.UnsignedByteType)
+        .load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr', function(texture) {
+          texture.mapping = THREE.EquirectangularReflectionMapping;
+          scene.environment = texture;
+        });
 
       // Handle window resize
       window.addEventListener('resize', onWindowResize, false);
@@ -463,15 +610,25 @@
         url,
         function(gltf) {
           model = gltf.scene;
-          scene.add(model);
-
+          
           // Store original materials
           model.traverse(function(child) {
             if (child.isMesh) {
-              // Clone the original material to preserve it
-              child.userData.originalMaterial = child.material.clone();
+              // Convert all materials to MeshStandardMaterial for PBR
+              let orig = child.material;
+              child.userData.originalMaterial = orig.clone();
+              child.material = new THREE.MeshStandardMaterial({
+                color: orig.color,
+                map: orig.map || null,
+                roughness: orig.roughness !== undefined ? orig.roughness : 0.1,
+                metalness: orig.metalness !== undefined ? orig.metalness : 0.0
+              });
+              child.castShadow = false;
+              child.receiveShadow = false;
             }
           });
+
+          scene.add(model);
 
           // Center the model
           const box = new THREE.Box3().setFromObject(model);
@@ -487,11 +644,11 @@
           // Notify parent that model is loaded
           window.parent.postMessage({ type: 'modelLoaded' }, '*');
 
-          // Apply current color if exists
+          // Apply current color if exists, otherwise use original materials
           if (currentColor) {
             applyColor(currentColor);
           } else {
-            // If no color is selected, use original materials
+            // Restore original materials
             model.traverse(function(child) {
               if (child.isMesh && child.userData.originalMaterial) {
                 child.material = child.userData.originalMaterial.clone();
@@ -519,7 +676,18 @@
       currentColor = color;
       model.traverse(function(child) {
         if (child.isMesh) {
-          child.material.color.setStyle(color);
+          if (color) {
+            // Use MeshStandardMaterial for color changes
+            const orig = child.userData.originalMaterial;
+            child.material = new THREE.MeshStandardMaterial({
+              color: color,
+              map: orig.map || null,
+              roughness: orig.roughness !== undefined ? orig.roughness : 0.1,
+              metalness: orig.metalness !== undefined ? orig.metalness : 0.0
+            });
+          } else {
+            child.material = child.userData.originalMaterial.clone();
+          }
         }
       });
 
@@ -540,10 +708,13 @@
             child.material = child.userData.originalMaterial.clone();
           } else {
             // Create new material with custom color
-            child.material = new THREE.MeshPhongMaterial({
+            child.material = new THREE.MeshStandardMaterial({
               color: currentColor || 0xffffff,
               map: null,
-              transparent: true
+              transparent: true,
+              roughness: 0.1,
+              metalness: 0.1,
+              envMapIntensity: 1.0
             });
           }
         }
@@ -562,10 +733,13 @@
             model.traverse(function(child) {
               if (child.isMesh) {
                 // Create new material with the texture
-                child.material = new THREE.MeshPhongMaterial({
+                child.material = new THREE.MeshStandardMaterial({
                   map: texture,
                   color: currentColor || 0xffffff,
-                  transparent: true
+                  transparent: true,
+                  roughness: 0.4,
+                  metalness: 0.1,
+                  envMapIntensity: 1.0
                 });
                 
                 // Ensure proper UV mapping
@@ -827,6 +1001,76 @@
       } else if (data.type === 'resetModel') {
         resetModel();
       }
+    });
+
+    // Update mobile event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileControls = document.querySelector('.mobile-controls');
+      const mobileTabs = document.querySelectorAll('.mobile-tab');
+      const mobileColorOptions = document.querySelectorAll('.mobile-color-option');
+      const mobileUploadButton = document.getElementById('mobileUploadFull');
+      const mobileFullFile = document.getElementById('mobileFullFile');
+
+      // Handle mobile tab switching and drawer expansion
+      mobileTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const tabName = this.getAttribute('data-tab');
+          
+          // Update active tab
+          mobileTabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Show corresponding content
+          document.querySelectorAll('.mobile-tab-content').forEach(content => {
+            content.style.display = 'none';
+          });
+          document.getElementById(`mobile-${tabName}-content`).style.display = 'block';
+
+          // Expand the drawer
+          mobileControls.classList.add('expanded');
+        });
+      });
+
+      // Handle mobile color selection
+      mobileColorOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          const color = this.getAttribute('data-color');
+          
+          // Update active color
+          mobileColorOptions.forEach(opt => opt.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Apply color to model
+          applyColor(color);
+        });
+      });
+
+      // Handle mobile file upload
+      mobileUploadButton.addEventListener('click', function() {
+        mobileFullFile.click();
+      });
+
+      mobileFullFile.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            currentFullUrl = event.target.result;
+            isLogoTexture = false;
+            isFullTexture = true;
+            updateModelTextures();
+            window.parent.postMessage({ type: 'textureReady' }, '*');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Close drawer when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!mobileControls.contains(e.target) && !e.target.closest('.mobile-tab')) {
+          mobileControls.classList.remove('expanded');
+        }
+      });
     });
 
     // Initialize the scene

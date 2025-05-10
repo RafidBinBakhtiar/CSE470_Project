@@ -341,8 +341,8 @@ export default function ContactUs() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-1">Email Address</h3>
                     <p className="text-gray-600">
-                      info@bracu.ac.bd<br />
-                      support@bracu.ac.bd
+                      genwear2025@gmail.com<br />
+                      support@genwear.com
                     </p>
                   </div>
                 </div>

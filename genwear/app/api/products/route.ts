@@ -1,3 +1,4 @@
+// This file implements the API endpoints for getting and creating products.
 import { NextResponse } from 'next/server';
 import { MongoClient, ObjectId } from 'mongodb';
 

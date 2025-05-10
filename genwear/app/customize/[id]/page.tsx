@@ -1,3 +1,4 @@
+// This file implements live customization preview and image texture upload for products.
 'use client';
 
 import { useState, useEffect, useRef } from 'react';

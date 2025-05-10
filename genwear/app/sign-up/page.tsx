@@ -1,3 +1,4 @@
+// This file implements the user sign-up functionality.
 'use client';
 
 import Image from "next/image"

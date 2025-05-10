@@ -117,20 +117,16 @@ export default function AIChatbox({ onImageGenerated }: AIChatboxProps) {
         await handleImageGeneration(imagePrompt);
       } else {
         // Regular text response
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch('/api/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`
           },
           body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
             messages: [
-              { role: 'system', content: 'You are a helpful AI assistant for a clothing customization website. You can help users with design ideas, color combinations, and provide creative suggestions for customizing their clothing items. If users ask for images or textures, tell them they can request texture generation by saying "generate a texture with [description]" or similar phrases.' },
               ...messages.map(msg => ({ role: msg.role, content: msg.content })),
               { role: 'user', content: userMessage }
-            ],
-            max_tokens: 150
+            ]
           })
         });
 
@@ -139,9 +135,7 @@ export default function AIChatbox({ onImageGenerated }: AIChatboxProps) {
         }
 
         const data = await response.json();
-        const aiResponse = data.choices[0].message.content;
-        
-        setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
       }
     } catch (error) {
       console.error('Error in AI chat:', error);

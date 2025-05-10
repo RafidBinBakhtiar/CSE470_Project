@@ -1,3 +1,4 @@
+// This file implements the discounts and promotions page for users.
 'use client';
 
 import { useState, useEffect } from 'react';

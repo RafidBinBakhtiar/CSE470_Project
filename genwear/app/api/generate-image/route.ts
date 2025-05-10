@@ -1,3 +1,4 @@
+// This file implements the API endpoint for generating image textures for 3D models from user uploads or prompts.
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {

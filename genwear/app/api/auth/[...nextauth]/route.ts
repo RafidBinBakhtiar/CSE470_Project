@@ -23,7 +23,6 @@ const authOptions: AuthOptions = {
           return null;
         }
 
-        // In a real application, you should hash the password and compare hashes
         if (user.password !== credentials.password) {
           return null;
         }
