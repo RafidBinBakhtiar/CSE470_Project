@@ -1,37 +1,26 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUser } from '../context/UserContext';
 import { motion } from 'framer-motion';
 import { FaShoppingCart, FaSearch, FaHeart, FaChevronDown, FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
-import { Menu, Mail, Bell, User, Settings, LogOut, Send, Package } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
-import CartIcon from '../components/CartIcon';
+import { Menu, Mail, Bell, User, Settings, LogOut } from 'lucide-react';
 
-// Dynamically import the Map component with no SSR
-const Map = dynamic(() => import('../components/Map'), { ssr: false });
-
-export default function ContactUs() {
+export default function AboutUs() {
   const { user, isAuthenticated, logout } = useUser();
-  const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState('');
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -42,40 +31,9 @@ export default function ContactUs() {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitError('');
-    
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-
-      // Reset success message after 5 seconds
-      setTimeout(() => {
-        setSubmitSuccess(false);
-      }, 5000);
-    }, 1500);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
+  const handleLogout = () => {
+    logout();
+    setIsProfileOpen(false);
   };
 
   return (
@@ -97,79 +55,70 @@ export default function ContactUs() {
               <Link href="/browse" className="text-gray-700 hover:text-teal-600 transition-colors">
                 Browse
               </Link>
-              <Link href="/about" className="text-gray-700 hover:text-teal-600 transition-colors">
+              <Link href="/about" className="text-teal-600 font-medium">
                 About Us
               </Link>
-              <Link href="/contact" className="text-teal-600 font-medium">
+              <Link href="/contact" className="text-gray-700 hover:text-teal-600 transition-colors">
                 Contact
               </Link>
             </div>
           </div>
           
           <div className="flex items-center gap-4">
-            <CartIcon />
+            <Link href="/cart" className="relative">
+              <FaShoppingCart className="text-2xl text-gray-600 hover:text-teal-600 transition-colors" />
+              <span className="absolute -top-2 -right-2 bg-teal-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                0
+              </span>
+            </Link>
             {isAuthenticated ? (
               <div className="relative">
-                <button 
-                  onClick={toggleDropdown}
-                  className="flex items-center gap-2 focus:outline-none"
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
                 >
                   {user?.profileImage ? (
-                    <div className="w-8 h-8 rounded-full overflow-hidden">
-                      <Image
-                        src={user.profileImage}
-                        alt="Profile"
-                        width={32}
-                        height={32}
-                        className="rounded-full object-cover"
-                      />
-                    </div>
+                    <img
+                      src={user.profileImage}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white">
+                    <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
                       {user?.name?.[0]?.toUpperCase() || 'U'}
                     </div>
                   )}
-                  <FaChevronDown className={`text-gray-600 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  <FaChevronDown className="w-4 h-4" />
                 </button>
-                
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100">
-                    <div className="px-4 py-2 border-b border-gray-100">
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    <div className="px-4 py-2 border-b">
                       <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
+                      <p className="text-sm text-gray-500">{user?.email}</p>
                     </div>
-                    
-                    <Link 
+                    <Link
                       href="/profile"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      <Settings className="w-4 h-4" />
-                      Manage Profile
+                      <div className="flex items-center space-x-2">
+                        <User className="w-4 h-4" />
+                        <span>Manage Profile</span>
+                      </div>
                     </Link>
-                    
-                    <Link 
-                      href="/orders"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    >
-                      <Package className="w-4 h-4" />
-                      Order History
-                    </Link>
-                    
                     <button
-                      onClick={() => {
-                        logout();
-                        setIsDropdownOpen(false);
-                      }}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full"
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                      <LogOut className="w-4 h-4" />
-                      Logout
+                      <div className="flex items-center space-x-2">
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </div>
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <Link href="/login" className="p-2">
+              <Link href="/sign-up" className="p-2">
                 <User className="w-6 h-6 text-gray-600 hover:text-teal-600" />
               </Link>
             )}
@@ -177,195 +126,58 @@ export default function ContactUs() {
         </div>
       </nav>
 
-      {/* Hero Banner */}
+      {/* Hero Banner with Video */}
       <section className="pt-24 pb-12 bg-gradient-to-r from-teal-50 to-white">
         <div className="container mx-auto px-4">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h1 className="text-5xl font-bold text-gray-800 mb-4">
-              Contact <span className="text-teal-600">Us</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-6">
-              We'd love to hear from you. Get in touch with our team for any questions, feedback, or support.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Contact Form */}
+          <div className="flex flex-col md:flex-row items-center">
             <motion.div 
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
-              className="bg-white rounded-xl shadow-lg p-8"
+              className="md:w-1/2 mb-8 md:mb-0"
             >
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Send Us a Message</h2>
-              
-              {submitSuccess && (
-                <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-md">
-                  Thank you for your message! We'll get back to you soon.
-                </div>
-              )}
-              
-              {submitError && (
-                <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md">
-                  {submitError}
-                </div>
-              )}
-              
-              <form onSubmit={handleSubmit}>
-                <div className="mb-6">
-                  <label htmlFor="name" className="block text-gray-700 mb-2">Your Name</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    placeholder="John Doe"
-                  />
-                </div>
-                
-                <div className="mb-6">
-                  <label htmlFor="email" className="block text-gray-700 mb-2">Email Address</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    placeholder="john@example.com"
-                  />
-                </div>
-                
-                <div className="mb-6">
-                  <label htmlFor="subject" className="block text-gray-700 mb-2">Subject</label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    placeholder="How can we help you?"
-                  />
-                </div>
-                
-                <div className="mb-6">
-                  <label htmlFor="message" className="block text-gray-700 mb-2">Message</label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows={5}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    placeholder="Your message here..."
-                  ></textarea>
-                </div>
-                
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-teal-600 text-white py-3 px-6 rounded-md hover:bg-teal-700 transition-colors flex items-center justify-center"
+              <h1 className="text-5xl font-bold text-gray-800 mb-4">
+                About <span className="text-teal-600">GenWear</span>
+              </h1>
+              <p className="text-xl text-gray-600 mb-6">
+                Revolutionizing fashion with AI-powered customization
+              </p>
+              <div className="flex space-x-4">
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-teal-600 text-white px-6 py-3 rounded-md hover:bg-teal-700 transition-colors"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5 mr-2" />
-                      Send Message
-                    </>
-                  )}
+                  Start Designing
                 </motion.button>
-              </form>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="border border-teal-600 text-teal-600 px-6 py-3 rounded-md hover:bg-teal-50 transition-colors"
+                >
+                  Learn More
+                </motion.button>
+              </div>
             </motion.div>
-
-            {/* Contact Information */}
+            
             <motion.div 
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl shadow-lg p-8"
+              className="md:w-1/2"
             >
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Contact Information</h2>
-              
-              <div className="space-y-8">
-                <div className="flex items-center space-x-4">
-                  <FaMapMarkerAlt className="text-teal-600 text-xl" />
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Address</h3>
-                    <p className="text-gray-600">Kha 224, Bir Uttam Rafiqul Islam Ave, Dhaka 1212Kha 224, Bir Uttam Rafiqul Islam Ave, Dhaka 1212</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-teal-600 text-white p-3 rounded-full mr-4">
-                    <FaPhone className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1">Phone Number</h3>
-                    <p className="text-gray-600">
-                      +880 1633310173<br />
-                      Mon-Fri: 9:00 AM - 6:00 PM
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="bg-teal-600 text-white p-3 rounded-full mr-4">
-                    <FaEnvelope className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1">Email Address</h3>
-                    <p className="text-gray-600">
-                      info@bracu.ac.bd<br />
-                      support@bracu.ac.bd
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-12">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Follow Us</h3>
-                <div className="flex space-x-4">
-                  <a href="#" className="bg-white p-3 rounded-full shadow-md hover:bg-teal-50 transition-colors">
-                    <svg className="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
-                    </svg>
-                  </a>
-                  <a href="#" className="bg-white p-3 rounded-full shadow-md hover:bg-teal-50 transition-colors">
-                    <svg className="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
-                    </svg>
-                  </a>
-                  <a href="#" className="bg-white p-3 rounded-full shadow-md hover:bg-teal-50 transition-colors">
-                    <svg className="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                    </svg>
-                  </a>
+              <div className="relative rounded-lg overflow-hidden shadow-2xl">
+                <div className="aspect-w-16 aspect-h-9">
+                  <video 
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  >
+                    <source src="/About Us.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
                 </div>
               </div>
             </motion.div>
@@ -373,37 +185,7 @@ export default function ContactUs() {
         </div>
       </section>
 
-      {/* Map Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Find Us</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Visit our store to experience our products in person and meet our team.
-            </p>
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="bg-white rounded-xl shadow-lg overflow-hidden h-96"
-          >
-            <div className="w-full h-[400px] rounded-lg overflow-hidden shadow-lg">
-              <Map />
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
+      {/* Main Content */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <motion.div 
@@ -411,57 +193,136 @@ export default function ContactUs() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="max-w-4xl mx-auto text-center mb-16"
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Frequently Asked Questions</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Find answers to common questions about our products and services.
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">Our Vision</h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              At GenWear, we believe that fashion should be as unique as you are. Our AI-powered platform 
+              allows you to create custom designs for your shoes, accessories, and clothing, bringing your 
+              imagination to life with just a few clicks.
             </p>
           </motion.div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {[
-              {
-                question: "How do I track my order?",
-                answer: "Once your order is shipped, you'll receive a tracking number via email. You can also track your order by logging into your account and visiting the 'Orders' section."
-              },
-              {
-                question: "What is your return policy?",
-                answer: "We offer a 30-day return policy for all unused items in their original packaging. Custom-designed items may have different return conditions."
-              },
-              {
-                question: "How long does shipping take?",
-                answer: "Standard shipping typically takes 3-5 business days. Express shipping is available for 1-2 business days delivery."
-              },
-              {
-                question: "Do you ship internationally?",
-                answer: "Yes, we ship to most countries worldwide. International shipping times and costs vary by location."
-              }
-            ].map((faq, index) => (
-              <motion.div 
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-              >
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">{faq.question}</h3>
-                <p className="text-gray-600">{faq.answer}</p>
-              </motion.div>
-            ))}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              viewport={{ once: true }}
+              className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+            >
+              <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-6 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">AI-Powered Design</h3>
+              <p className="text-gray-600 text-center">
+                Our advanced AI algorithms understand your style preferences and help you create 
+                unique designs that perfectly match your personality.
+              </p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+              className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+            >
+              <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-6 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">Customizable Products</h3>
+              <p className="text-gray-600 text-center">
+                From shoes to accessories and clothing, our platform offers a wide range of products 
+                that you can customize with your own designs.
+              </p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              viewport={{ once: true }}
+              className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+            >
+              <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-6 mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">Fast Delivery</h3>
+              <p className="text-gray-600 text-center">
+                Once you're happy with your design, we'll produce and deliver your custom products 
+                quickly, so you can start showing off your unique style.
+              </p>
+            </motion.div>
           </div>
-          
+
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mt-12"
+            className="bg-teal-50 rounded-xl p-8 md:p-12 mb-16"
           >
-            <Link href="/browse" className="inline-block bg-teal-600 text-white py-3 px-8 rounded-md hover:bg-teal-700 transition-colors">
-              Browse Our Products
-            </Link>
+            <div className="flex flex-col md:flex-row items-center">
+              <div className="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">How It Works</h3>
+                <ol className="space-y-4">
+                  <li className="flex items-start">
+                    <span className="flex-shrink-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center mr-3">1</span>
+                    <p className="text-gray-600">Choose a product category (shoes, accessories, or clothing)</p>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="flex-shrink-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center mr-3">2</span>
+                    <p className="text-gray-600">Use our AI design tools to create your custom design</p>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="flex-shrink-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center mr-3">3</span>
+                    <p className="text-gray-600">Preview your design in 3D and make any adjustments</p>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="flex-shrink-0 w-8 h-8 bg-teal-600 text-white rounded-full flex items-center justify-center mr-3">4</span>
+                    <p className="text-gray-600">Place your order and receive your custom product</p>
+                  </li>
+                </ol>
+              </div>
+              <div className="md:w-1/2">
+                <div className="relative rounded-lg overflow-hidden shadow-lg">
+                  <div className="w-full h-64 bg-gradient-to-br from-teal-100 to-teal-300 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">Join Our Community</h2>
+            <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
+              Be part of a growing community of fashion innovators who are redefining personal style 
+              with AI-powered customization. Share your designs, get inspired by others, and express 
+              your unique identity through fashion.
+            </p>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-teal-600 text-white px-8 py-3 rounded-md hover:bg-teal-700 transition-colors text-lg"
+            >
+              Start Creating Today
+            </motion.button>
           </motion.div>
         </div>
       </section>
